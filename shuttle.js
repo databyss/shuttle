@@ -88,6 +88,9 @@ var player = {
 		if(this.pos.y < 0) {
 			this.pos.y = 0;
 			this.vel.y = 0;
+			
+			// hit floor, kill left/right momentum
+			this.vel.x = 0;
 		}
 		if(this.pos.y + this.height > c.height) {
 			this.pos.y = c.height - this.height;
