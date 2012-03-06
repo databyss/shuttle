@@ -86,6 +86,8 @@ var player = {
 		this.pos.y += this.vel.y;
 				
 		if(this.pos.y < 0) {
+			// display landing force
+			//console.log('Landed with a force of ' + calcLandingForce() + 'N');
 			this.pos.y = 0;
 			this.vel.y = 0;
 			
@@ -116,6 +118,15 @@ function setMapBG() {
 	if(bgImage !== null) {
 		ctx.drawImage(bgImage, 0, 0, 400, 400);
 	}
+}
+
+function calcLandingForce() {
+	// calculate acceleration of stopping, then force accrued
+	var playerMass = 909.1; // 909.1 kg ~ 2000 lbs.
+	var stoppingTime = 0.01; // .01 seconds. reasonably close to zero
+	var acceleration = -player.vel.y / stoppingTime; //
+	var force = playerMass * acceleration; // Newtons
+	return force; 
 }
 
 function handleKeyDown(evt) {
