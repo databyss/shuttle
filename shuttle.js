@@ -1,5 +1,6 @@
 var exitFlag = false;
 var lastUpdate = null;
+var bgImage;
 var c, ctx;
 
 var clickDebug =  'Click Debug:';
@@ -41,9 +42,11 @@ var player = {
 	vel: { // player velocity
 		x: 0, y: 0 
 	},
-	color: '#000000',
+	color: '#ffffff',
 	thrust: 10,
+	sideThrust: 5,
 	gravity: 10,
+	image: null,
 	debugOutput: function() {
 		var debugOutput = $('#gameDebug').html() + '<br />Player Debug:';
 		debugOutput += '<table><tr><td>pos</td><td>(' + this.pos.x.toFixed(2) + ', ' + this.pos.y.toFixed(2) + ')</td></tr>';
@@ -56,10 +59,10 @@ var player = {
 		var msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
 
 		if(input.left) {
-			this.pos.x -= 2;
+			this.vel.x -= this.sideThrust * msDiff;
 		}		
 		if(input.right) {
-			this.pos.x += 2;
+			this.vel.x += this.sideThrust * msDiff;
 		}
 		if(input.up) {
 			this.vel.y += this.thrust * msDiff;
@@ -72,10 +75,12 @@ var player = {
 		// check left edge of map
 		if(this.pos.x < 0) {
 			this.pos.x = 0;
+			this.vel.x = 0;
 		}
 		// check the right edge of the map
 		if(this.pos.x + this.width >= c.width) {
 			this.pos.x = c.width - this.width;
+			this.vel.x = 0;
 		}
 
 		this.pos.y += this.vel.y;
@@ -92,16 +97,18 @@ var player = {
 	},
 	draw: function() {
 		// draw player
-		ctx.fillStyle = this.color;
-		ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);					
+		//ctx.fillStyle = this.color;
+		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+		ctx.drawImage(this.image, this.pos.x, this.pos.y);					
 	}				 
 }
 
 function setMapBG() {
 	// get canvas context				
-	ctx.clearRect(0, 0, c.width, c.height);
-	ctx.fillStyle = '#ffffff';
-	ctx.fillRect(0, 0, c.width, c.height);
+	//ctx.clearRect(0, 0, c.width, c.height);
+	//ctx.fillStyle = '#ffffff';
+	//ctx.fillRect(0, 0, c.width, c.height);
+	ctx.drawImage(bgImage, 0, 0, 400, 400);	
 }
 
 function handleKeyDown(evt) {
@@ -162,32 +169,37 @@ function handleKeyUp(evt) {
 	}
 }
 
-function drawDebugGrid() {
-	ctx.strokeStyle = '#ff0000';
-	/*
-	for(var x = 0; x < c.width; x+=level.scale) {
-		ctx.beginPath();
-		ctx.moveTo(x, 0);
-		ctx.lineTo(x, c.height);
-		ctx.stroke();
+function drawDebugGrid(method) {
+	switch(method) {
+		case 'grid':
+			ctx.strokeStyle = '#ff0000';
+			for(var x = 0; x < c.width; x+=level.scale) {
+				ctx.beginPath();
+				ctx.moveTo(x, 0);
+				ctx.lineTo(x, c.height);
+				ctx.stroke();
+			}
+			for(var y = 0; y < c.height; y += level.scale) {
+				ctx.beginPath();
+				ctx.moveTo(0, y);
+				ctx.lineTo(c.width, y);
+				ctx.stroke();
+			}
+			break;
+			
+		case 'crosshair':
+			ctx.strokeStyle = '#ff0000';
+			ctx.beginPath();
+			ctx.moveTo(0, c.height / 2);
+			ctx.lineTo(c.width, c.height / 2);
+			ctx.stroke();
+				
+			ctx.beginPath();
+			ctx.moveTo(c.width / 2, 0);
+			ctx.lineTo(c.width / 2, c.height);
+			ctx.stroke();
+			break;				
 	}
-	for(var y = 0; y < c.height; y += level.scale) {
-		ctx.beginPath();
-		ctx.moveTo(0, y);
-		ctx.lineTo(c.width, y);
-		ctx.stroke();
-	}
-	*/
-	
-	ctx.beginPath();
-	ctx.moveTo(0, c.height / 2);
-	ctx.lineTo(c.width, c.height / 2);
-	ctx.stroke();
-		
-	ctx.beginPath();
-	ctx.moveTo(c.width / 2, 0);
-	ctx.lineTo(c.width / 2, c.height);
-	ctx.stroke();
 }
 
 function gameLoop() {
@@ -197,7 +209,7 @@ function gameLoop() {
 	input.debugOutput();
 	if(!exitFlag) {
 		setMapBG();
-		drawDebugGrid();
+		drawDebugGrid(); // 'crosshair' or 'grid'
 		player.draw();
 		if(!lastUpdate) {
 			lastUpdate = newUpdate;
@@ -219,15 +231,17 @@ $(function() {
 	// canvas defaults
 	ctx.lineWidth = 1;
 	
-	/*
-	// load scripts
-	$.getScript("level.js", function(){
-		// level loaded
-	});
-	$.getScript("player.js", function(){
-		// player loaded
-	});
-	*/
+	// setup background image
+	bgImage = new Image();
+	bgImage.src = 'images/spacebg400x400.png';
+
+	// set player image
+	player.image = new Image();
+	player.image.onload = function() {
+		player.width = this.width;
+		player.height = this.height;
+	}
+	player.image.src = 'images/tardis1.png';
 	
 	// add listeners for keyboard input
 	window.addEventListener('keydown', handleKeyDown, true);
