@@ -41,17 +41,13 @@ var player = {
 	vel: { // player velocity
 		x: 0, y: 0 
 	},
-	acc: { // player acceleration 
-		x: 0, y: 0 
-	}, 
 	color: '#000000',
 	thrust: 10,
 	gravity: 10,
 	debugOutput: function() {
 		var debugOutput = $('#gameDebug').html() + '<br />Player Debug:';
 		debugOutput += '<table><tr><td>pos</td><td>(' + this.pos.x.toFixed(2) + ', ' + this.pos.y.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>vel</td><td>(' + this.vel.x.toFixed(2) + ', ' + this.vel.y.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>acc</td><td>(' + this.acc.x.toFixed(2) + ', ' + this.acc.y.toFixed(2) + ')</td></tr></table>';
+		debugOutput += '<tr><td>vel</td><td>(' + this.vel.x.toFixed(2) + ', ' + this.vel.y.toFixed(2) + ')</td></tr></table>';
 		$('#gameDebug').html(debugOutput);
 	},
 	update: function(ms) {
