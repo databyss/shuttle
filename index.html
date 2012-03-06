@@ -12,11 +12,15 @@
 		<div id="gameWindow">
 			<canvas id="bgCanvas"	width="400" height="400" style="position:absolute;top:50;left:10;">Canvas element not supported by your browser.</canvas>
 			<canvas id="gameCanvas" width="400" height="400" style="position:absolute;top:50;left:10;">Canvas element not supported by your browser.</canvas>
-			<div id="commands" style="position:absolute;top:500;left:10;">
+			<div id="commands" style="position:absolute;top:450;left:10;">
 				<h2>Controls</h2>
 				W for thrust<br />
 				A and S for leaning<br />
-				ESC to quit!
+				ESC to quit!<br />
+				<h2>Force Mods</h2>
+				Gravity: <input type="range" id="rangeGravity" min="0" max="20" value="10" step="0.5" onchange="player.gravity = this.value;$('#gravOutput').html(this.value);" /> <span id="gravOutput">10</span><br />
+				Thrust: <input type="range" id="rangeThrust" min="0" max="20" value="10" step="0.5" onchange="player.thrust = this.value;$('#thrustOutput').html(this.value);" /> <span id="thrustOutput">10</span><br />
+				Side Thrust: <input type="range" id="rangeSideThrust" min="0" max="20" value="5" step="0.5" onchange="player.sideThrust = this.value;$('#sThrustOutput').html(this.value);" /> <span id="sThrustOutput">5</span><br />
 			</div> <!-- commands -->
 		</div> <!-- gameWindow -->
 		<div id="gameDebug" style="position:absolute;top:10;left:500;"></div>
