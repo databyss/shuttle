@@ -14,7 +14,7 @@ ImageLoader.prototype.downloadAll = function(downloadCallback) {
 	if(this.downloadQueue.length === 0) {
 		downloadCallback();
 	} else {
-		for(var i = 0; i < this.downloadQueue; i++) {
+		for(var i = 0; i < this.downloadQueue.length; i++) {
 			var path = this.downloadQueue[i];
 			var img = new Image();
 			var that = this;
