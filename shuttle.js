@@ -4,6 +4,8 @@ var bgImage = null;
 var c, ctx;
 var imageManager = new ImageLoader();
 
+// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
+
 var clickDebug =  'Click Debug:';
 clickDebug += '<table><tr><td>click</td><td>(0,0)</td></tr>';
 clickDebug += '<tr><td>canvas</td><td>(0,0)</td></tr>';
