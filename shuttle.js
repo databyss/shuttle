@@ -180,6 +180,18 @@ function calcLandingForce() {
 	return force; 
 }
 
+function handleMouseDown(evt) {
+	if(evt.target.id == 'gameCanvas') {
+		if(!input.up) {
+			input.up = true;
+		}
+	}
+}
+
+function handleMouseUp(evt) {
+	input.up = false;
+}
+
 function handleKeyDown(evt) {
 	//console.log(evt.keyCode);
 	switch(evt.keyCode) {
@@ -328,6 +340,8 @@ $(function() {
 	// add listeners for keyboard input
 	window.addEventListener('keydown', handleKeyDown, true);
 	window.addEventListener('keyup', handleKeyUp, true);
+	window.addEventListener('mousedown', handleMouseDown, true);
+	window.addEventListener('mouseup', handleMouseUp, true);
 	
 	// debug
 	$("#gameCanvas").click(function(e){
