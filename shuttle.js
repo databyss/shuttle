@@ -51,9 +51,9 @@ var player = {
 		x: 0, y: 0 
 	},
 	color: '#ffffff',
-	thrust: 10,
-	sideThrust: 5,
-	gravity: 10,
+	thrust: 7,
+	sideThrust: 7,
+	gravity: 7,
 	image: null,
 	frames: 5,
 	fps: 20,
