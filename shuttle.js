@@ -34,6 +34,10 @@ var input = {
 	}	
 }
 
+var world = {
+	xOffset: 0,
+	yOffset: 0
+}
 var player = {
 	width: 10,
 	height: 20,
@@ -97,8 +101,8 @@ var player = {
 			this.vel.x = 0;
 		}
 		// check the right edge of the map
-		if(this.pos.x + this.drawWidth >= c.width) {
-			this.pos.x = c.width - this.drawWidth;
+		if(this.pos.x + this.drawWidth >= bgImage.width) {
+			this.pos.x = bgImage.width - this.drawWidth;
 			this.vel.x = 0;
 		}
 
@@ -113,18 +117,46 @@ var player = {
 			// hit floor, kill left/right momentum
 			this.vel.x = 0;
 		}
-		if(this.pos.y + this.drawHeight > c.height) {
-			this.pos.y = c.height - this.drawHeight;
+		if(this.pos.y + this.drawHeight > bgImage.height) {
+			this.pos.y = bgImage.height - this.drawHeight;
 			this.vel.y = 0;
 		}
 		
+		// adjust side scrolling
+		if(this.pos.x - world.xOffset >= c.width / 2) {
+			world.xOffset = this.pos.x - (c.width / 2);			
+		}
+		if(this.pos.x - world.xOffset < (c.width / 2)) {
+			world.xOffset = this.pos.x - (c.width / 2);
+		}
+		if(world.xOffset < 0) {
+			world.xOffset = 0;
+		}
+		if(world.xOffset > bgImage.width - c.width) {
+			world.xOffset = bgImage.width - c.width;
+		}
+
+		// adjust side scrolling
+		if(this.pos.y - world.yOffset >= c.height / 2) {
+			world.yOffset = this.pos.y - (c.height / 2);			
+		}
+		if(this.pos.y - world.yOffset < (c.height / 2)) {
+			world.yOffset = this.pos.y - (c.height / 2);
+		}
+		if(world.yOffset < 0) {
+			world.yOffset = 0;
+		}
+		if(world.yOffset > bgImage.height - c.height) {
+			world.yOffset = bgImage.height - c.height;
+		}
+
 	},
 	draw: function() {
 		// draw player
 		//ctx.fillStyle = this.color;
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		if(player.image !== null) {
-			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x, this.pos.y, this.drawWidth, this.drawHeight);
+			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - world.xOffset, this.pos.y - world.yOffset,  this.drawWidth, this.drawHeight);
 		}
 	}
 }
@@ -135,7 +167,7 @@ function setMapBG() {
 	//ctx.fillStyle = '#ffffff';
 	//ctx.fillRect(0, 0, c.width, c.height);
 	if(bgImage !== null) {
-		ctx.drawImage(bgImage, 0, 0, 400, 400);
+		ctx.drawImage(bgImage, world.xOffset, world.yOffset, c.width, c.height, 0, 0, c.width, c.height);
 	}
 }
 
@@ -262,10 +294,10 @@ function loadImages() {
 	// preload images	
 	imageManager.queueDownload('images/tardis1.png');
 	imageManager.queueDownload('images/tardis_spin.png');
-	imageManager.queueDownload('images/spacebg400x400.png');
+	imageManager.queueDownload('images/space.png');
 	
 	imageManager.downloadAll(function() {
-		bgImage = imageManager.getAsset('images/spacebg400x400.png');
+		bgImage = imageManager.getAsset('images/space.png');
 		player.image = imageManager.getAsset('images/tardis_spin.png');
 		player.frames = 5;
 		player.width = (player.image.width / player.frames);
