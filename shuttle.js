@@ -37,6 +37,8 @@ var input = {
 var player = {
 	width: 10,
 	height: 20,
+	drawWidth: 34,
+	drawHeight: 50,
 	pos: { // player position
 		x: 50,
 		y: 120
@@ -49,17 +51,32 @@ var player = {
 	sideThrust: 5,
 	gravity: 10,
 	image: null,
+	frames: 5,
+	fps: 20,
+	currentFrame: 0,
+	timeCounter: 0,
+	nextFrame: function(ms) {
+		this.timeCounter += ms;
+		if(this.timeCounter > (1000 / this.fps)) {
+			this.currentFrame++;
+			this.timeCounter = 0;
+		}
+		if(this.currentFrame >= this.frames) this.currentFrame = 0;
+	},
 	debugOutput: function() {
 		var debugOutput = $('#gameDebug').html() + '<br />Player Debug:';
 		debugOutput += '<table><tr><td>pos</td><td>(' + this.pos.x.toFixed(2) + ', ' + this.pos.y.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>vel</td><td>(' + this.vel.x.toFixed(2) + ', ' + this.vel.y.toFixed(2) + ')</td></tr></table>';
+		debugOutput += '<tr><td>vel</td><td>(' + this.vel.x.toFixed(2) + ', ' + this.vel.y.toFixed(2) + ')</td></tr>';
+		debugOutput += '<tr><td>frame</td><td>(' + this.currentFrame + ')</td></tr></table>';
 		$('#gameDebug').html(debugOutput);
 	},
 	update: function(ms) {
 		this.debugOutput();
+		
+		
 		// ms is milliseconds since last input
 		var msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
-
+		this.nextFrame(ms);
 		if(input.left) {
 			this.vel.x -= this.sideThrust * msDiff;
 		}		
@@ -80,8 +97,8 @@ var player = {
 			this.vel.x = 0;
 		}
 		// check the right edge of the map
-		if(this.pos.x + this.width >= c.width) {
-			this.pos.x = c.width - this.width;
+		if(this.pos.x + this.drawWidth >= c.width) {
+			this.pos.x = c.width - this.drawWidth;
 			this.vel.x = 0;
 		}
 
@@ -96,8 +113,8 @@ var player = {
 			// hit floor, kill left/right momentum
 			this.vel.x = 0;
 		}
-		if(this.pos.y + this.height > c.height) {
-			this.pos.y = c.height - this.height;
+		if(this.pos.y + this.drawHeight > c.height) {
+			this.pos.y = c.height - this.drawHeight;
 			this.vel.y = 0;
 		}
 		
@@ -107,7 +124,7 @@ var player = {
 		//ctx.fillStyle = this.color;
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		if(player.image !== null) {
-			ctx.drawImage(this.image, this.pos.x, this.pos.y);
+			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x, this.pos.y, this.drawWidth, this.drawHeight);
 		}
 	}
 }
@@ -234,7 +251,7 @@ function gameLoop() {
 		if(!lastUpdate) {
 			lastUpdate = newUpdate;
 		}
-		player.update(newUpdate - lastUpdate); // passing in gravity
+		player.update(newUpdate - lastUpdate);
 	} else {
 		//player.debugOutput();
 	}
@@ -244,12 +261,14 @@ function gameLoop() {
 function loadImages() {
 	// preload images	
 	imageManager.queueDownload('images/tardis1.png');
+	imageManager.queueDownload('images/tardis_spin.png');
 	imageManager.queueDownload('images/spacebg400x400.png');
 	
 	imageManager.downloadAll(function() {
 		bgImage = imageManager.getAsset('images/spacebg400x400.png');
-		player.image = imageManager.getAsset('images/tardis1.png');
-		player.width = player.image.width;
+		player.image = imageManager.getAsset('images/tardis_spin.png');
+		player.frames = 5;
+		player.width = (player.image.width / player.frames);
 		player.height = player.image.height;
 	});
 }
