@@ -2,7 +2,6 @@ var exitFlag = false;
 var lastUpdate = null;
 var bgImage = null;
 var c, ctx;
-var imageManager = new ImageLoader();
 
 // Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
 
@@ -304,6 +303,8 @@ function gameLoop() {
 
 function loadImages() {
 	// preload images	
+	var imageManager = new ImageLoader();
+	
 	imageManager.queueDownload('images/tardis1.png');
 	imageManager.queueDownload('images/tardis_spin.png');
 	imageManager.queueDownload('images/space.png');
@@ -316,7 +317,6 @@ function loadImages() {
 		player.height = player.image.height;
 	});
 }
-
 
 function setupCanvas() {
 	// define graphics contexts
