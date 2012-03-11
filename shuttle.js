@@ -72,7 +72,6 @@ var player = {
 	update: function(ms) {
 		this.debugOutput();
 		
-		
 		// ms is milliseconds since last input
 		var msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
 		this.nextFrame(ms);
@@ -96,8 +95,8 @@ var player = {
 			this.vel.x = 0;
 		}
 		// check the right edge of the map
-		if(this.pos.x + this.drawWidth >= bgImage.width) {
-			this.pos.x = bgImage.width - this.drawWidth;
+		if(this.pos.x + this.drawWidth >= level.mapWidth()) {
+			this.pos.x = level.mapWidth() - this.drawWidth;
 			this.vel.x = 0;
 		}
 
@@ -112,8 +111,8 @@ var player = {
 			// hit floor, kill left/right momentum
 			this.vel.x = 0;
 		}
-		if(this.pos.y + this.drawHeight > bgImage.height) {
-			this.pos.y = bgImage.height - this.drawHeight;
+		if(this.pos.y + this.drawHeight > level.mapHeight()) {
+			this.pos.y = level.mapHeight() - this.drawHeight;
 			this.vel.y = 0;
 		}
 		
@@ -127,8 +126,8 @@ var player = {
 		if(level.xOffset < 0) {
 			level.xOffset = 0;
 		}
-		if(level.xOffset > bgImage.width - c.width) {
-			level.xOffset = bgImage.width - c.width;
+		if(level.xOffset > level.mapWidth() - c.width) {
+			level.xOffset = level.mapWidth() - c.width;
 		}
 
 		// adjust side scrolling
@@ -141,8 +140,8 @@ var player = {
 		if(level.yOffset < 0) {
 			level.yOffset = 0;
 		}
-		if(level.yOffset > bgImage.height - c.height) {
-			level.yOffset = bgImage.height - c.height;
+		if(level.yOffset > level.mapHeight() - c.height) {
+			level.yOffset = level.mapHeight() - c.height;
 		}
 
 	},
@@ -398,10 +397,10 @@ var level = {
 	scaleMinusOne: 39,
 	gravity: 7,
 	mapWidth: function() {
-		return(this.map[0].length * this.scale);
+		return(this.level_map.width * this.scale);
 	},
 	mapHeight: function() {
-		return(this.map.length * this.scale);
+		return(this.level_map.height * this.scale);
 	},
 	colorAt: function(x, y) {
 		var output = '#000000';
