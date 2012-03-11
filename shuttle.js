@@ -33,10 +33,6 @@ var input = {
 	}	
 }
 
-var world = {
-	xOffset: 0,
-	yOffset: 0
-}
 var player = {
 	width: 10,
 	height: 20,
@@ -122,31 +118,31 @@ var player = {
 		}
 		
 		// adjust side scrolling
-		if(this.pos.x - world.xOffset >= c.width / 2) {
-			world.xOffset = this.pos.x - (c.width / 2);			
+		if(this.pos.x - level.xOffset >= c.width / 2) {
+			level.xOffset = this.pos.x - (c.width / 2);			
 		}
-		if(this.pos.x - world.xOffset < (c.width / 2)) {
-			world.xOffset = this.pos.x - (c.width / 2);
+		if(this.pos.x - level.xOffset < (c.width / 2)) {
+			level.xOffset = this.pos.x - (c.width / 2);
 		}
-		if(world.xOffset < 0) {
-			world.xOffset = 0;
+		if(level.xOffset < 0) {
+			level.xOffset = 0;
 		}
-		if(world.xOffset > bgImage.width - c.width) {
-			world.xOffset = bgImage.width - c.width;
+		if(level.xOffset > bgImage.width - c.width) {
+			level.xOffset = bgImage.width - c.width;
 		}
 
 		// adjust side scrolling
-		if(this.pos.y - world.yOffset >= c.height / 2) {
-			world.yOffset = this.pos.y - (c.height / 2);			
+		if(this.pos.y - level.yOffset >= c.height / 2) {
+			level.yOffset = this.pos.y - (c.height / 2);			
 		}
-		if(this.pos.y - world.yOffset < (c.height / 2)) {
-			world.yOffset = this.pos.y - (c.height / 2);
+		if(this.pos.y - level.yOffset < (c.height / 2)) {
+			level.yOffset = this.pos.y - (c.height / 2);
 		}
-		if(world.yOffset < 0) {
-			world.yOffset = 0;
+		if(level.yOffset < 0) {
+			level.yOffset = 0;
 		}
-		if(world.yOffset > bgImage.height - c.height) {
-			world.yOffset = bgImage.height - c.height;
+		if(level.yOffset > bgImage.height - c.height) {
+			level.yOffset = bgImage.height - c.height;
 		}
 
 	},
@@ -155,7 +151,7 @@ var player = {
 		//ctx.fillStyle = this.color;
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		if(player.image !== null) {
-			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - world.xOffset, this.pos.y - world.yOffset,  this.drawWidth, this.drawHeight);
+			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - level.xOffset, this.pos.y - level.yOffset,  this.drawWidth, this.drawHeight);
 		}
 	}
 }
@@ -166,7 +162,7 @@ function setMapBG() {
 	//ctx.fillStyle = '#ffffff';
 	//ctx.fillRect(0, 0, c.width, c.height);
 	if(bgImage !== null) {
-		ctx.drawImage(bgImage, world.xOffset, world.yOffset, c.width, c.height, 0, 0, c.width, c.height);
+		ctx.drawImage(bgImage, level.xOffset, level.yOffset, c.width, c.height, 0, 0, c.width, c.height);
 	}
 }
 
@@ -289,6 +285,7 @@ function gameLoop() {
 	input.debugOutput();
 	if(!exitFlag) {
 		setMapBG();
+		level.draw();
 		drawDebugGrid(); // 'crosshair' or 'grid'
 		player.draw();
 		if(!lastUpdate) {
@@ -375,6 +372,103 @@ window.requestAnimFrame = (function() {
 			};
 })();
 // END RAF SHIM
+
+// color array for drawing blocks
+var colors = ['#ffffff', '#00ff00', '#ff0000', '#0000ff'];
+
+var level = {
+	level_map: null,
+	map_data: null,
+	map: [ // map is inverted so that negative indexes are always down and to the left
+			[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+			[3,1,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3],
+			[0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+		],
+	xOffset: 0,
+	yOffset: 0,
+	scale: 40,
+	scaleMinusOne: 39,
+	gravity: 7,
+	mapWidth: function() {
+		return(this.map[0].length * this.scale);
+	},
+	mapHeight: function() {
+		return(this.map.length * this.scale);
+	},
+	colorAt: function(x, y) {
+		if(this.map_data !== null) {
+			if(x < 0 || y < 0 || x >= this.level_map.width || y >= this.level_map.height) {
+				var first = (y * this.level_map.width * 4) + (x * 4); // 4 elements per pixel RGBA
+				try {
+					var output = '#' + (this.map_data[first]).toString(16) + (this.map_data[first + 1]).toString(16) + (this.map_data[first + 2]).toString(16);
+				} catch (e) {
+					console.log('Error getting map_data for (' + x + ', ' + y + ')');					
+				}
+				return output;
+			}
+		}
+		return null;
+	},
+	draw: function() {
+		if(this.map_data !== null) {
+			for(var y = 0; y < this.level_map.height; y++) {
+				for(var x = 0; x < this.level_map.width; x++) {
+					if(this.colorAt !== '#000000') { // don't draw blank tiles
+						// only draw if near canvas
+						if((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
+							//TODO add bounds checking for yOffset too
+							ctx.fillStyle  = this.colorAt(x,y);
+							ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scaleMinusOne, this.scaleMinusOne);
+						}
+					}
+				}
+			}						
+		}
+	},
+	toMapCoord: function(point) {
+		var p = {
+			x: point.x.valueOf(),
+			y: point.y.valueOf()
+		}
+		
+		p.x = Math.floor((p.x + this.xOffset) / this.scale); // map is full length, so get that
+		p.y = Math.floor((p.y + this.yOffset) / this.scale);
+		
+		// check in bounds
+		if(p.x < 0 || p.x >= this.map[0].length || p.y < 0 || p.y >= this.map.length) {
+			return null;
+		} else {
+			return p.valueOf();
+		}
+	},
+	debugOutput: function() {
+		var debugOutput = $('#gameDebug').html() + '<br />Level Debug:';
+		debugOutput += '<table><tr><td>start</td><td>(' + this.xOffset.toFixed(2) + ', ' + this.yOffset.toFixed(2) + ')</td></tr>';
+		debugOutput += '<tr><td>map width</td><td>(' + this.mapWidth().toFixed(2) + ')</td></tr>';
+		debugOutput += '<tr><td>map height</td><td>(' + this.mapHeight().toFixed(2) + ')</td></tr>';
+		debugOutput += '<tr><td>scale</td><td>(' + this.scale.toFixed(2) + ')</td></tr>';
+		debugOutput += '<tr><td>scaleMinusOne</td><td>(' + this.scaleMinusOne.toFixed(2) + ')</td></tr>';
+		debugOutput += '<tr><td>gravity</td><td>(' + this.gravity.toFixed(2) + ')</td></tr></table>';
+		$('#gameDebug').html(debugOutput);
+	}	
+}
 
 // BEGIN ImageLoader Scripts
 // ImageLoader based on http://www.html5rocks.com/en/tutorials/games/assetmanager/
