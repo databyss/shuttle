@@ -313,9 +313,16 @@ function loadImages() {
 		level.level_map = imageManager.getAsset('images/level1.png');
 		ctx.drawImage(level.level_map, 0, 0);
 		// load image into map data
-		level.map_data = ctx.getImageData(1, c.height - level.level_map.height, level.level_map.width, level.level_map.height).data;
+		//level.map_data = ctx.getImageData(1, c.height - level.level_map.height, level.level_map.width, level.level_map.height).data;
+		level.map_data = ctx.getImageData(0, 0, level.level_map.width, level.level_map.height).data;
 		// clear level map
 		ctx.clearRect(0, 0, c.width, c.height);
+	
+		// flip image and translate down to fix coordinates
+		ctx.scale(1, -1); // flip over x axis
+		ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
+		ctx.translate(0.5, 0.5); // offset for aliasing
+
 		
 		player.image = imageManager.getAsset('images/tardis_spin.png');
 		player.frames = 5;
@@ -332,10 +339,7 @@ function setupCanvas() {
 	// canvas defaults
 	ctx.lineWidth = 1;
 
-	// flip image and translate down to fix coordinates
-	ctx.scale(1, -1); // flip over x axis
-	ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
-	ctx.translate(0.5, 0.5); // offset for aliasing
+	// set more after loading bg image
 }
 
 $(function() {
@@ -436,11 +440,12 @@ var level = {
 		if(this.map_data !== null) {
 			for(var y = 0; y < this.level_map.height; y++) {
 				for(var x = 0; x < this.level_map.width; x++) {
-					if(this.colorAt != '#000000') { // don't draw blank tiles
+					var thisColor = this.colorAt(x, y);
+					if(thisColor != '#000000') { // don't draw blank tiles
 						// only draw if near canvas
 						if((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
 							//TODO add bounds checking for yOffset too
-							ctx.fillStyle  = this.colorAt(x,y);
+							ctx.fillStyle = thisColor;
 							ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scaleMinusOne, this.scaleMinusOne);
 						}
 					}
