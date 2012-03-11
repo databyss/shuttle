@@ -305,9 +305,18 @@ function loadImages() {
 	imageManager.queueDownload('images/tardis1.png');
 	imageManager.queueDownload('images/tardis_spin.png');
 	imageManager.queueDownload('images/space.png');
+	imageManager.queueDownload('images/level1.png');
 	
 	imageManager.downloadAll(function() {
 		bgImage = imageManager.getAsset('images/space.png');
+		// load level image map
+		level.level_map = imageManager.getAsset('images/level1.png');
+		ctx.drawImage(level.level_map, 0, 0);
+		// load image into map data
+		level.map_data = ctx.getImageData(1, c.height - level.level_map.height, level.level_map.width, level.level_map.height).data;
+		// clear level map
+		ctx.clearRect(0, 0, c.width, c.height);
+		
 		player.image = imageManager.getAsset('images/tardis_spin.png');
 		player.frames = 5;
 		player.width = (player.image.width / player.frames);
