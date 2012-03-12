@@ -94,7 +94,7 @@ var player = {
 	drawHeight: 50,
 	pos: { // player position
 		x: 170,
-		y: 20
+		y: 100
 	},
 	vel: { // player velocity
 		x: 0, y: 0 
