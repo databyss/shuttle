@@ -173,7 +173,7 @@ var player = {
 				// invalid values
 			} else if(level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== '#000000' || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== '#000000') {
 				// something to the right!
-				console.log('hit something going right');
+				//console.log('hit something going right');
 				
 				// move to one left
 				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth;
@@ -186,7 +186,7 @@ var player = {
 				// invalid values
 			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== '#000000' || level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== '#000000') {
 				// something to the left!
-				console.log('hit something going left');
+				//console.log('hit something going left');
 				// move to one right
 				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
 				this.vel.x = 0;
@@ -221,10 +221,10 @@ var player = {
 				// invalid values
 			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== '#000000' || level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== '#000000') {
 				// something above!
-				console.log('hit something going up');
+				//console.log('hit something going up');
 				// move to one up
 				this.vel.y = 0;
-				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
+				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight;
 			}
 		} else {
 			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
@@ -232,8 +232,11 @@ var player = {
 				// invalid values
 			} else if(level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== '#000000' || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== '#000000') {
 				// something below!
-				console.log('hit something going down');
+				//console.log('hit something going down');
 				this.vel.y = 0;
+				
+				// stop left/right when hit
+				this.vel.x = 0;
 				// move to one down
 				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
 			}
@@ -275,38 +278,6 @@ var player = {
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		if(player.image !== null) {
 			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - level.xOffset, this.pos.y - level.yOffset,  this.drawWidth, this.drawHeight);
-		}
-		// draw corners
-		var point = {x: player.pos.x - level.xOffset, y: player.pos.y - level.yOffset};
-		// bottom left first
-		var mapPoint = level.toMapCoord(point);
-		if(mapPoint !== null) {
-			ctx.strokeStyle = '#ff0000';
-			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
-		}
-
-		// bottom right		
-		point = {x: player.pos.x - level.xOffset + player.drawWidth, y: player.pos.y - level.yOffset};
-		mapPoint = level.toMapCoord(point);
-		if(mapPoint !== null) {
-			ctx.strokeStyle = '#ff0000';
-			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
-		}
-		
-		// top left
-		point = {x: player.pos.x - level.xOffset, y: player.pos.y - level.yOffset + player.drawHeight};
-		mapPoint = level.toMapCoord(point);
-		if(mapPoint !== null) {
-			ctx.strokeStyle = '#ff0000';
-			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
-		}
-
-		// top right
-		point = {x: player.pos.x - level.xOffset + player.drawWidth, y: player.pos.y - level.yOffset + player.drawHeight};
-		mapPoint = level.toMapCoord(point);
-		if(mapPoint !== null) {
-			ctx.strokeStyle = '#ff0000';
-			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
 		}
 	}
 }
