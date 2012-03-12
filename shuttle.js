@@ -157,17 +157,16 @@ var player = {
 			this.vel.x = 0;
 		}
 		// check the right edge of the map
-		if(this.pos.x + this.drawWidth >= mapWidth) {
+		if(this.pos.x + this.drawWidth > mapWidth) {
 			this.pos.x = mapWidth - this.drawWidth;
 			this.vel.x = 0;
 		}
 
-		/*
 		// load array with player corners with x moved
-		corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y}, this);
+		corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
 		
 		// check collisions
-		if(input.right && this.vel.x > 0) {
+		if(this.vel.x > 0) {
 			// moving right
 			if(corners.mapTopRight === null || corners.mapBotRight === null) {
 				console.log('invalid values: ' + corners.mapTopRight + ', ' + corners.mapBotRight);
@@ -178,8 +177,9 @@ var player = {
 				
 				// move to one left
 				this.pos.x = corners.mapBotLeft.x * level.scale;
+				this.vel.x = 0;
 			}
-		} else if(input.left && this.vel.x < 0) {
+		} else if(this.vel.x < 0) {
 			// moving left
 			if(corners.mapTopLeft === null || corners.mapBotLeft === null) {
 				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapBotLeft);
@@ -189,9 +189,9 @@ var player = {
 				console.log('hit something going left');
 				// move to one right
 				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
+				this.vel.x = 0;
 			}
 		}
-		*/
 		
 		this.pos.y += this.vel.y;
 				
@@ -209,6 +209,36 @@ var player = {
 			this.pos.y = mapHeight - this.drawHeight;
 			this.vel.y = 0;
 		}
+
+		// load array with player corners with y moved
+		corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
+
+		// check collision
+		if(this.vel.y > 0) {
+			// moving up
+			if(corners.mapTopLeft === null || corners.mapTopRight === null) {
+				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapTopRight);
+				// invalid values
+			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== '#000000' || level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== '#000000') {
+				// something above!
+				console.log('hit something going up');
+				// move to one up
+				this.vel.y = 0;
+				this.pos.y = corners.mapBotLeft.y * level.scale;
+			}
+		} else {
+			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
+				console.log('invalid values: ' + corners.mapBotLeft + ', ' + corners.mapBotRight);
+				// invalid values
+			} else if(level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== '#000000' || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== '#000000') {
+				// something below!
+				console.log('hit something going down');
+				this.vel.y = 0;
+				// move to one down
+				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
+			}
+		}
+
 		
 		// adjust side scrolling
 		if(this.pos.x - level.xOffset >= c.width / 2) {
@@ -245,6 +275,38 @@ var player = {
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		if(player.image !== null) {
 			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - level.xOffset, this.pos.y - level.yOffset,  this.drawWidth, this.drawHeight);
+		}
+		// draw corners
+		var point = {x: player.pos.x - level.xOffset, y: player.pos.y - level.yOffset};
+		// bottom left first
+		var mapPoint = level.toMapCoord(point);
+		if(mapPoint !== null) {
+			ctx.strokeStyle = '#ff0000';
+			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
+		}
+
+		// bottom right		
+		point = {x: player.pos.x - level.xOffset + player.drawWidth, y: player.pos.y - level.yOffset};
+		mapPoint = level.toMapCoord(point);
+		if(mapPoint !== null) {
+			ctx.strokeStyle = '#ff0000';
+			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
+		}
+		
+		// top left
+		point = {x: player.pos.x - level.xOffset, y: player.pos.y - level.yOffset + player.drawHeight};
+		mapPoint = level.toMapCoord(point);
+		if(mapPoint !== null) {
+			ctx.strokeStyle = '#ff0000';
+			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
+		}
+
+		// top right
+		point = {x: player.pos.x - level.xOffset + player.drawWidth, y: player.pos.y - level.yOffset + player.drawHeight};
+		mapPoint = level.toMapCoord(point);
+		if(mapPoint !== null) {
+			ctx.strokeStyle = '#ff0000';
+			ctx.strokeRect(mapPoint.x * level.scale - level.xOffset, mapPoint.y * level.scale - level.yOffset, level.scale, level.scale);
 		}
 	}
 }
@@ -563,7 +625,7 @@ var level = {
 		p.y = Math.floor((p.y + this.yOffset) / this.scale);
 		
 		// check in bounds
-		if(p.x < 0 || p.x >= this.level_map.width || p.y < 0 || p.y >= this.level_map.height) {
+		if(p.x < 0 || p.x > this.level_map.width || p.y < 0 || p.y > this.level_map.height) {
 			return null;
 		} else {
 			return p.valueOf();
