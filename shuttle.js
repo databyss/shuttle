@@ -241,8 +241,7 @@ var player = {
 }
 
 function setMapBG() {
-	// get canvas context				
-	//ctx.clearRect(0, 0, c.width, c.height);
+	ctx.clearRect(0, 0, c.width, c.height);
 	//ctx.fillStyle = '#ffffff';
 	//ctx.fillRect(0, 0, c.width, c.height);
 	if(bgImage !== null) {
@@ -539,7 +538,7 @@ var level = {
 						if((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
 							//TODO add bounds checking for yOffset too
 							ctx.fillStyle = thisColor;
-							ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scaleMinusOne, this.scaleMinusOne);
+							ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scale, this.scale);
 						}
 					}
 				}
