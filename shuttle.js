@@ -39,8 +39,8 @@ var player = {
 	drawWidth: 34,
 	drawHeight: 50,
 	pos: { // player position
-		x: 50,
-		y: 120
+		x: 170,
+		y: 50
 	},
 	vel: { // player velocity
 		x: 0, y: 0 
@@ -397,10 +397,19 @@ var level = {
 	scaleMinusOne: 39,
 	gravity: 7,
 	mapWidth: function() {
-		return(this.level_map.width * this.scale);
+		if(this.level_map !== null) {
+			return(this.level_map.width * this.scale);
+		} else {
+			return null;
+		}
+		
 	},
 	mapHeight: function() {
-		return(this.level_map.height * this.scale);
+		if(this.level_map !== null) { 
+			return(this.level_map.height * this.scale);
+		} else {
+			return null;
+		}
 	},
 	colorAt: function(x, y) {
 		var output = '#000000';
