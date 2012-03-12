@@ -176,7 +176,7 @@ var player = {
 				//console.log('hit something going right');
 				
 				// move to one left
-				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth;
+				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
 				this.vel.x = 0;
 			}
 		} else if(this.vel.x < 0) {
@@ -224,7 +224,7 @@ var player = {
 				//console.log('hit something going up');
 				// move to one up
 				this.vel.y = 0;
-				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight;
+				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
 			}
 		} else {
 			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
@@ -236,7 +236,7 @@ var player = {
 				this.vel.y = 0;
 				
 				// stop left/right when hit
-				this.vel.x = 0;
+				//this.vel.x = 0;
 				// move to one down
 				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
 			}
