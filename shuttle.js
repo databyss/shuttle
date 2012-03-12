@@ -125,7 +125,15 @@ var player = {
 	},
 	update: function(ms) {
 		this.debugOutput();
-		
+		var mapWidth = level.mapWidth();
+		var mapHeight = level.mapHeight();
+		// if nulls set to canvas size
+		if(mapWidth === null) {
+			mapWidth = c.width;
+		}
+		if(mapHeight === null) {
+			mapHeight = c.height;
+		}
 		// ms is milliseconds since last input
 		var msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
 		this.nextFrame(ms);
@@ -149,8 +157,8 @@ var player = {
 			this.vel.x = 0;
 		}
 		// check the right edge of the map
-		if(this.pos.x + this.drawWidth >= level.mapWidth()) {
-			this.pos.x = level.mapWidth() - this.drawWidth;
+		if(this.pos.x + this.drawWidth >= mapWidth) {
+			this.pos.x = mapWidth - this.drawWidth;
 			this.vel.x = 0;
 		}
 
@@ -196,8 +204,9 @@ var player = {
 			// hit floor, kill left/right momentum
 			this.vel.x = 0;
 		}
-		if(this.pos.y + this.drawHeight > level.mapHeight()) {
-			this.pos.y = level.mapHeight() - this.drawHeight;
+		
+		if(this.pos.y + this.drawHeight > mapHeight) {
+			this.pos.y = mapHeight - this.drawHeight;
 			this.vel.y = 0;
 		}
 		
@@ -211,8 +220,8 @@ var player = {
 		if(level.xOffset < 0) {
 			level.xOffset = 0;
 		}
-		if(level.xOffset > level.mapWidth() - c.width) {
-			level.xOffset = level.mapWidth() - c.width;
+		if(level.xOffset > mapWidth - c.width) {
+			level.xOffset = mapWidth - c.width;
 		}
 
 		// adjust side scrolling
@@ -225,8 +234,8 @@ var player = {
 		if(level.yOffset < 0) {
 			level.yOffset = 0;
 		}
-		if(level.yOffset > level.mapHeight() - c.height) {
-			level.yOffset = level.mapHeight() - c.height;
+		if(level.yOffset > mapHeight - c.height) {
+			level.yOffset = mapHeight - c.height;
 		}
 
 	},
@@ -396,7 +405,6 @@ function loadImages() {
 		level.level_map = imageManager.getAsset('images/level1.png');
 		ctx.drawImage(level.level_map, 0, 0);
 		// load image into map data
-		//level.map_data = ctx.getImageData(1, c.height - level.level_map.height, level.level_map.width, level.level_map.height).data;
 		level.map_data = ctx.getImageData(0, 0, level.level_map.width, level.level_map.height).data;
 		// clear level map
 		ctx.clearRect(0, 0, c.width, c.height);
