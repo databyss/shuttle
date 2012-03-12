@@ -16,7 +16,61 @@ var inputKeys = { // defines key codes used for input
 	left: 65, // A
 	quit: 27 // ESC
 }
-	
+
+var corners = {
+	topLeft: {
+		x: null, y: null
+	},
+	topRight: {
+		x: null, y: null
+	},
+	botLeft: {
+		x: null, y: null
+	},
+	botRight: {
+		x: null, y: null
+	},
+	mapTopLeft: {
+		x: null, y: null
+	},
+	mapTopRight: {
+		x: null, y: null
+	},
+	mapBotLeft: {
+		x: null, y: null
+	},
+	mapBotRight: {
+		x: null, y: null
+	},
+	fill: function(point, object) {
+		this.topLeft.x = point.x;
+		this.topLeft.y = point.y + object.drawHeight;
+		
+		this.topRight.x = point.x + object.drawWidth;
+		this.topRight.y = point.y + object.drawHeight;
+		
+		this.botLeft.x = point.x;
+		this.botLeft.y = point.y;
+		
+		this.botRight.x = point.x + object.drawWidth;
+		this.botRight.y = point.y;
+		
+		this.mapTopLeft = level.toMapCoord(this.topLeft);
+		this.mapTopRight = level.toMapCoord(this.topRight);
+		this.mapBotLeft = level.toMapCoord(this.botLeft);
+		this.mapBotRight = level.toMapCoord(this.botRight);
+		//this.debugOutput();
+	},
+	debugOutput: function() {
+		var debugOutput = $('#gameDebug').html() + '<br />Corner Debug:<table border="1"><tr><td></td><td>x,y</td><td>map x,y</td><td>at map x,y</td></tr>';
+		debugOutput += '<tr><td>topLeft</td><td>(' + this.topLeft.x.toFixed(1) + ', ' + this.topLeft.y.toFixed(1) + ')</td><td>(' + this.mapTopLeft.x + ', ' + this.mapTopLeft.y + ')</td><td>' + level.map[this.mapTopLeft.y][this.mapTopLeft.x] + '</td></tr>';
+		debugOutput += '<tr><td>topRight</td><td>(' + this.topRight.x.toFixed(1) + ', ' + this.topRight.y.toFixed(1) + ')</td><td>(' + this.mapTopRight.x + ', ' + this.mapTopRight.y + ')</td><td>' + level.map[this.mapTopRight.y][this.mapTopRight.x] + '</td></tr>';
+		debugOutput += '<tr><td>botLeft</td><td>(' + this.botLeft.x.toFixed(1) + ', ' + this.botLeft.y.toFixed(1) + ')</td><td>(' + this.mapBotLeft.x + ', ' + this.mapBotLeft.y + ')</td><td>' + level.map[this.mapBotLeft.y][this.mapBotLeft.x] + '</td></tr>';
+		debugOutput += '<tr><td>botRight</td><td>(' + this.botRight.x.toFixed(1) + ', ' + this.botRight.y.toFixed(1) + ')</td><td>(' + this.mapBotRight.x + ', ' + this.mapBotRight.y + ')</td><td>' + level.map[this.mapBotRight.y][this.mapBotRight.x] + '</td></tr></table>';
+		$('#gameDebug').html(debugOutput);
+	}	
+}
+
 // input state object
 var input = {
 	left: false,
@@ -100,6 +154,37 @@ var player = {
 			this.vel.x = 0;
 		}
 
+		/*
+		// load array with player corners with x moved
+		corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y}, this);
+		
+		// check collisions
+		if(input.right && this.vel.x > 0) {
+			// moving right
+			if(corners.mapTopRight === null || corners.mapBotRight === null) {
+				console.log('invalid values: ' + corners.mapTopRight + ', ' + corners.mapBotRight);
+				// invalid values
+			} else if(level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== '#000000' || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== '#000000') {
+				// something to the right!
+				console.log('hit something going right');
+				
+				// move to one left
+				this.pos.x = corners.mapBotLeft.x * level.scale;
+			}
+		} else if(input.left && this.vel.x < 0) {
+			// moving left
+			if(corners.mapTopLeft === null || corners.mapBotLeft === null) {
+				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapBotLeft);
+				// invalid values
+			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== '#000000' || level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== '#000000') {
+				// something to the left!
+				console.log('hit something going left');
+				// move to one right
+				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
+			}
+		}
+		*/
+		
 		this.pos.y += this.vel.y;
 				
 		if(this.pos.y < 0) {
