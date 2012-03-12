@@ -224,7 +224,7 @@ var player = {
 				console.log('hit something going up');
 				// move to one up
 				this.vel.y = 0;
-				this.pos.y = corners.mapBotLeft.y * level.scale;
+				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
 			}
 		} else {
 			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
