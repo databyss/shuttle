@@ -88,8 +88,8 @@ var input = {
 }
 
 var player = {
-	width: 10,
-	height: 20,
+	width: 0,
+	height: 0,
 	drawWidth: 34,
 	drawHeight: 50,
 	pos: { // player position
