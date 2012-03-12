@@ -176,7 +176,7 @@ var player = {
 				console.log('hit something going right');
 				
 				// move to one left
-				this.pos.x = corners.mapBotLeft.x * level.scale;
+				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth;
 				this.vel.x = 0;
 			}
 		} else if(this.vel.x < 0) {
