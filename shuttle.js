@@ -71,6 +71,11 @@ var corners = {
 	}	
 }
 
+var specialBlocks = new Object();
+specialBlocks['#000000'] = 'blank';
+specialBlocks['#ff0000'] = 'end';
+specialBlocks['#00ff00'] = 'start';
+
 // input state object
 var input = {
 	left: false,
