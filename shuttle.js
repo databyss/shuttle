@@ -1,6 +1,6 @@
 var exitFlag = false;
 var lastUpdate = null;
-var bgImage = null;
+var backgrounds = [null, null];
 var c, ctx;
 
 // Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
@@ -287,15 +287,6 @@ var player = {
 	}
 }
 
-function setMapBG() {
-	ctx.clearRect(0, 0, c.width, c.height);
-	//ctx.fillStyle = '#ffffff';
-	//ctx.fillRect(0, 0, c.width, c.height);
-	if(bgImage !== null) {
-		ctx.drawImage(bgImage, level.xOffset, level.yOffset, c.width, c.height, 0, 0, c.width, c.height);
-	}
-}
-
 function calcLandingForce() {
 	// calculate acceleration of stopping, then force accrued
 	var playerMass = 909.1; // 909.1 kg ~ 2000 lbs.
@@ -414,13 +405,26 @@ function gameLoop() {
 	$('#gameDebug').html(clickDebug);		
 	input.debugOutput();
 	if(!exitFlag) {
-		setMapBG();
-		level.draw();
-		drawDebugGrid(); // 'crosshair' or 'grid'
-		player.draw();
 		if(!lastUpdate) {
 			lastUpdate = newUpdate;
 		}
+
+		// draw bg's
+		for(var i = 0; i < backgrounds.length; i++) {
+			if(backgrounds[i] !== null) {
+				backgrounds[i].update(newUpdate - lastUpdate);
+				if(i === 0) {
+					// clear bg on first one
+					backgrounds[i].draw(level, true);
+				} else {
+					backgrounds[i].draw(level, false);
+				}
+			}
+		}
+
+		level.draw();
+		drawDebugGrid(); // 'crosshair' or 'grid'
+		player.draw();
 		player.update(newUpdate - lastUpdate);
 	} else {
 		//player.debugOutput();
@@ -434,11 +438,14 @@ function loadImages() {
 	
 	imageManager.queueDownload('images/tardis1.png');
 	imageManager.queueDownload('images/tardis_spin.png');
-	imageManager.queueDownload('images/space.png');
+	imageManager.queueDownload('images/spacebg64x64.png');
+	imageManager.queueDownload('images/bgstars.png');
 	imageManager.queueDownload('images/level1.png');
 	
 	imageManager.downloadAll(function() {
-		bgImage = imageManager.getAsset('images/space.png');
+		backgrounds[0].image = imageManager.getAsset('images/spacebg64x64.png');
+		backgrounds[1].image = imageManager.getAsset('images/bgstars.png');
+		
 		// load level image map
 		level.level_map = imageManager.getAsset('images/level1.png');
 		ctx.drawImage(level.level_map, 0, 0);
@@ -472,6 +479,18 @@ function setupCanvas() {
 }
 
 $(function() {
+	// initizlise background objects
+	backgrounds[0] = new background();
+	backgrounds[0].scrollFactor.x = 0.25;
+	backgrounds[0].scrollFactor.y = 0.25;
+	backgrounds[0].scale = 2;
+
+	backgrounds[1] = new background();
+	backgrounds[1].scrollFactor.x = 0.5;
+	backgrounds[1].scrollFactor.y = 0.5;
+	backgrounds[1].scale = 0.8;
+	backgrounds[1].velocity.x = -10;
+
 	// on ready
 	setupCanvas();
 	loadImages(); //TODO: async, need to wait for finish before moving on.
@@ -666,3 +685,60 @@ ImageLoader.prototype.getAsset = function(path) {
 	return this.cache[path];
 }
 // END ImageLoader Scripts
+
+// background class from canvasbg project http://www.github.com/databyss/canvasbg
+function background() {
+	this.image = null;
+	this.scale = 1;
+	this.scroll = {
+		x: 0, y: 0
+	};
+	this.scrollFactor = {
+		x: 1, y: 1
+	};
+	this.velocity = {
+		x: 0, y: 0
+	};
+	this.gameWidth = function() {
+		if(this.image === null) {
+			return 0;
+		}
+		return (this.image.width * this.scale);
+	};
+	this.gameHeight = function() {
+		if(this.image === null) {
+			return 0;
+		}
+		return (this.image.height * this.scale);
+	};
+	this.update = function(ms) {
+		this.scroll.x += this.velocity.x * (ms / 1000);
+		this.scroll.y += this.velocity.y * (ms / 1000);
+		if(this.scroll.x > this.gameWidth()) this.scroll.x = 0;
+		if(this.scroll.x < 0) this.scroll.x = this.gameWidth() - 1;
+		
+		if(this.scroll.y > this.gameHeight()) this.scroll.y = 0;
+		if(this.scroll.y < 0) this.scroll.y = this.gameHeight() - 1;
+	};
+	this.draw = function(gameWorld, clearScreen) {
+		if(clearScreen) {
+			ctx.clearRect(0, 0, c.width, c.height);
+		}
+		if(this.image !== null) {
+			var xPoint = this.scroll.x - ((gameWorld.xOffset * this.scrollFactor.x) % this.gameWidth()) - (this.gameWidth() * 2); // replace by scroll and scrollFactor
+			var yPoint = this.scroll.y - ((gameWorld.yOffset * this.scrollFactor.y) % this.gameHeight()) - (this.gameHeight() * 2);
+			
+			while(xPoint < c.width) {
+				while(yPoint < c.height) {
+					//TODO: if image is too big, only draw to edge of canvas
+					ctx.drawImage(this.image, xPoint, yPoint, this.gameWidth(), this.gameHeight());
+					yPoint += this.gameHeight();
+				}
+				yPoint = this.scroll.y - ((gameWorld.yOffset * this.scrollFactor.y) % this.gameHeight()) - (this.gameHeight() * 2);
+				xPoint += this.gameWidth();
+			}
+			//console.log('finished drawing bg1');
+		}
+	}
+}
+// END background class
