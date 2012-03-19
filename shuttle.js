@@ -104,6 +104,9 @@ var player = {
 	vel: { // player velocity
 		x: 0, y: 0 
 	},
+	maxVel: {
+		x: 20, y: 20
+	},
 	color: '#ffffff',
 	thrust: 12,
 	sideThrust: 12,
@@ -154,6 +157,9 @@ var player = {
 			this.vel.y -= this.gravity * msDiff;
 		}
 		
+		// clamp velocity
+		if(this.vel.x > this.maxVel.x) this.vel.x = this.maxVel.x;
+		if(this.vel.x < -this.maxVel.x) this.vel.x = -this.maxVel.x;
 		this.pos.x += this.vel.x;
 		
 		// check left edge of map
@@ -198,6 +204,8 @@ var player = {
 			}
 		}
 		
+		if(this.vel.y > this.maxVel.y) this.vel.y = this.maxVel.y;
+		if(this.vel.y < -this.maxVel.y) this.vel.y = -this.maxVel.y;
 		this.pos.y += this.vel.y;
 				
 		if(this.pos.y < 0) {
