@@ -512,7 +512,7 @@ function loadImages() {
 		backgrounds[1].image = imageManager.getAsset('images/bgstars.png');
 		
 		// load level image map
-		level.level_map = imageManager.getAsset('images/level2.png');
+		level.level_map = imageManager.getAsset('images/level1.png');
 		ctx.drawImage(level.level_map, 0, 0);
 		// load image into map data
 		level.map_data = ctx.getImageData(0, 0, level.level_map.width, level.level_map.height).data;
