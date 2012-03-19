@@ -1,4 +1,5 @@
 var exitFlag = false;
+var pauseFlag = false;
 var lastUpdate = null;
 var backgrounds = [null, null];
 var c, ctx;
@@ -11,10 +12,14 @@ clickDebug += '<tr><td>canvas</td><td>(0,0)</td></tr>';
 clickDebug += '<tr><td>game</td><td>(0,0)</td></tr></table>';
 
 var inputKeys = { // defines key codes used for input
-	up: 87, // W
-	right: 68, // D
-	left: 65, // A
-	quit: 27 // ESC
+	up: 87, // w
+	right: 68, // d
+	left: 65, // a
+	quit: 27, // ESC
+	pause: 80, // p
+	backMap: 90, // z
+	upMap: 88, // x
+	debug: 70 // f
 }
 
 var corners = {
@@ -82,11 +87,17 @@ var input = {
 	up: false,
 	right: false,
 	quit: false,
+	pause: false,
+	backMap: false,
+	upMap: false,
 	debugOutput: function() {
 		var debugOutput = $('#gameDebug').html() + '<br />Input Debug:';
 		debugOutput += '<table><tr><td>up</td><td>(' + this.up + ')</td></tr>';
 		debugOutput += '<tr><td>left</td><td>(' + this.left + ')</td></tr>';
 		debugOutput += '<tr><td>right</td><td>(' + this.right + ')</td></tr>';
+		debugOutput += '<tr><td>pause</td><td>(' + this.pause + ')</td></tr>';
+		debugOutput += '<tr><td>backMap</td><td>(' + this.backMap + ')</td></tr>';
+		debugOutput += '<tr><td>upMap</td><td>(' + this.upMap + ')</td></tr>';
 		debugOutput += '<tr><td>quit</td><td>(' + this.quit + ')</td></tr></table>';
 		$('#gameDebug').html(debugOutput);
 	}	
@@ -98,8 +109,8 @@ var player = {
 	drawWidth: 34,
 	drawHeight: 50,
 	pos: { // player position
-		x: 170,
-		y: 100
+		x: 512,
+		y: 550
 	},
 	vel: { // player velocity
 		x: 0, y: 0 
@@ -345,6 +356,31 @@ function handleKeyDown(evt) {
 			}
 			break;
 		
+		case inputKeys.pause: // pause Key
+			if(!input.pause) {
+				input.pause = true;
+				pauseFlag = !pauseFlag; // toggle
+			}
+			break;
+		
+		case inputKeys.backMap: // backMap Key
+			if(!input.backMap) {
+				input.backMap = true;
+			}
+			break;
+		
+		case inputKeys.upMap: // upMap Key
+			if(!input.upMap) {
+				input.upMap = true;
+			}
+			break;
+		
+		case inputKeys.debug: // debug Key
+			if(!input.debug) {
+				input.debug = true;
+			}
+			break;
+		
 		default:
 			console.log('unknown key pressed: ' + evt.keyCode)
 	}
@@ -367,6 +403,26 @@ function handleKeyUp(evt) {
 		case inputKeys.up: // Up Key
 			//console.log('up released');
 			input.up = false;
+			break;
+		
+		case inputKeys.quit: // quit Key
+			input.quit = false;
+			break;
+		
+		case inputKeys.pause: // pause Key
+			input.pause = false;
+			break;
+		
+		case inputKeys.backMap: // backMap Key
+			input.backMap = false;
+			break;
+		
+		case inputKeys.upMap: // upMap Key
+			input.upMap = false;
+			break;
+		
+		case inputKeys.debug: // debug Key
+			input.debug = false;
 			break;
 		
 		default:
@@ -409,13 +465,13 @@ function drawDebugGrid(method) {
 
 function gameLoop() {
 	var newUpdate = new Date();
+	if(!lastUpdate) {
+		lastUpdate = newUpdate;
+	}
 					
 	$('#gameDebug').html(clickDebug);		
 	input.debugOutput();
-	if(!exitFlag) {
-		if(!lastUpdate) {
-			lastUpdate = newUpdate;
-		}
+	if(!exitFlag && !pauseFlag) {
 
 		// draw bg's
 		for(var i = 0; i < backgrounds.length; i++) {
@@ -449,13 +505,14 @@ function loadImages() {
 	imageManager.queueDownload('images/spacebg64x64.png');
 	imageManager.queueDownload('images/bgstars.png');
 	imageManager.queueDownload('images/level1.png');
+	imageManager.queueDownload('images/level2.png');
 	
 	imageManager.downloadAll(function() {
 		backgrounds[0].image = imageManager.getAsset('images/spacebg64x64.png');
 		backgrounds[1].image = imageManager.getAsset('images/bgstars.png');
 		
 		// load level image map
-		level.level_map = imageManager.getAsset('images/level1.png');
+		level.level_map = imageManager.getAsset('images/level2.png');
 		ctx.drawImage(level.level_map, 0, 0);
 		// load image into map data
 		level.map_data = ctx.getImageData(0, 0, level.level_map.width, level.level_map.height).data;
@@ -602,21 +659,32 @@ var level = {
 		return output;
 	},
 	draw: function() {
+		var blockCount = 0;
 		if(this.map_data !== null) {
-			for(var y = 0; y < this.level_map.height; y++) {
-				for(var x = 0; x < this.level_map.width; x++) {
+			// precalculate max x value in map array
+			var xDraw = Math.floor(this.xOffset / this.scale) + Math.floor(c.width / this.scale) + 1;
+			var yDraw = Math.floor(this.yOffset / this.scale) + Math.floor(c.height / this.scale) + 1;
+			for(var y = Math.floor(this.yOffset / this.scale); y < this.level_map.height; y++) {
+				for(var x = Math.floor(this.xOffset / this.scale); x < xDraw; x++) {
 					var thisColor = this.colorAt(x, y);
 					if(thisColor != '#000000') { // don't draw blank tiles
 						// only draw if near canvas
 						if((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
-							//TODO add bounds checking for yOffset too
-							ctx.fillStyle = thisColor;
-							ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scale, this.scale);
+							if((y * this.scale) - this.yOffset >= -this.scale && (y * this.scale) - this.yOffset <= c.height) {
+								//TODO add bounds checking for yOffset too
+								ctx.fillStyle = thisColor;
+								ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scale, this.scale);
+								if(input.debug) {
+									console.log(blockCount + ': Drawing block (' + x + ', ' + y + ') with color ' + thisColor);
+								}
+								blockCount++;
+							}
 						}
 					}
 				}
 			}						
 		}
+		if(input.debug) input.debug = false;
 	},
 	toMapCoord: function(point) {
 		var p = {
