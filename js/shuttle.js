@@ -189,11 +189,19 @@ var player = {
 		
 		// check collisions
 		if(this.vel.x > 0) {
+			var color1 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
+			var color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
 			// moving right
 			if(corners.mapTopRight === null || corners.mapBotRight === null) {
 				console.log('invalid values: ' + corners.mapTopRight + ', ' + corners.mapBotRight);
 				// invalid values
-			} else if(level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== specialBlocks['blank'] || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== specialBlocks['blank']) {
+			} else if(color1 !== specialBlocks['blank'] && color1 !== specialBlocks['start']) {
+				// something to the right!
+				//console.log('hit something going right');
+				// move to one left
+				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
+				this.vel.x = 0;
+			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something to the right!
 				//console.log('hit something going right');
 				// move to one left
@@ -201,11 +209,20 @@ var player = {
 				this.vel.x = 0;
 			}
 		} else if(this.vel.x < 0) {
+			var color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
+			var color2 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
 			// moving left
 			if(corners.mapTopLeft === null || corners.mapBotLeft === null) {
 				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapBotLeft);
 				// invalid values
-			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== specialBlocks['blank'] || level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== specialBlocks['blank']) {
+			} else if(color1 !== specialBlocks['blank'] && color1 !== specialBlocks['start']) {
+				// something to the left!
+				// don't hit start
+				//console.log('hit something going left');
+				// move to one right
+				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
+				this.vel.x = 0;
+			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something to the left!
 				// don't hit start
 				//console.log('hit something going left');
@@ -239,11 +256,19 @@ var player = {
 
 		// check collision
 		if(this.vel.y > 0) {
+			var color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
+			var color2 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
 			// moving up
 			if(corners.mapTopLeft === null || corners.mapTopRight === null) {
 				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapTopRight);
 				// invalid values
-			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== specialBlocks['blank'] || level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== specialBlocks['blank']) {
+			} else if(color1 !== specialBlocks['blank'] && color1 !== specialBlocks['start']) {
+				// something above!
+				//console.log('hit something going up');
+				// move to one up
+				this.vel.y = 0;
+				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
+			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something above!
 				//console.log('hit something going up');
 				// move to one up
@@ -251,10 +276,12 @@ var player = {
 				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
 			}
 		} else {
+			var color1 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
+			var color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
 			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
 				console.log('invalid values: ' + corners.mapBotLeft + ', ' + corners.mapBotRight);
 				// invalid values
-			} else if(level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== specialBlocks['blank'] || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== specialBlocks['blank']) {
+			} else if(color1 !== specialBlocks['blank'] && color1 !== specialBlocks['start']) {
 				// something below!
 				//console.log('hit something going down');
 				this.vel.y = 0;
@@ -264,6 +291,7 @@ var player = {
 
 				// move to one down
 				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
+			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 			}
 		}
 
