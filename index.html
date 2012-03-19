@@ -3,17 +3,22 @@
 		<title>databyss/shuttle @ GitHub</title>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 		<script type="text/javascript" src="shuttle.js"></script> 
+		<link rel="stylesheet" href="css/site.css" />
 	</head>
-	<body>
-		<h1>Javascript 2D Gravity Stuff</h1>
-		
-		<br /><br />
-		
+	<body>	
 		<div id="gameWindow">
-			
-			<canvas id="gameCanvas" width="600" height="600" style="position:absolute;top:50;left:10;">Canvas element not supported by your browser.</canvas>
 
-			<div id="commands" style="position:absolute;top:650;left:10;">
+			<h1>Javascript 2D Gravity Stuff</h1>
+			
+			<br /><br />
+			
+			<canvas id="gameCanvas" width="600" height="600">
+				Sorry, your browser is not able to handle the canvas element.
+				<br />
+				<a href="http://en.wikipedia.org/wiki/Canvas_element">Click here to read more.</a>
+			</canvas>
+
+			<div id="commands">
 				<h2>Controls</h2>
 				W or Click for thrust<br />
 				A and D for leaning<br />
@@ -50,10 +55,11 @@
 				
 				Download as zip file: <a href="https://github.com/databyss/shuttle/zipball/master">Download ZIP File</a>
 			</div> <!-- commands -->
+
+			<div id="gameDebug"></div> <!-- gameDebug -->
+			
+			<br /><br />
 		</div> <!-- gameWindow -->
-		<div id="gameDebug" style="position:absolute;top:10;left:700;"></div>
-		
-		<br /><br />
 		
 	</body>
 </html>
