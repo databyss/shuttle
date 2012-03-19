@@ -77,9 +77,9 @@ var corners = {
 }
 
 var specialBlocks = new Object();
-specialBlocks['#000000'] = 'blank';
-specialBlocks['#ff0000'] = 'end';
-specialBlocks['#00ff00'] = 'start';
+specialBlocks['blank'] = '#000000';
+specialBlocks['end'] = '#ff0000';
+specialBlocks['start'] = '#00ff00';
 
 // input state object
 var input = {
@@ -193,10 +193,9 @@ var player = {
 			if(corners.mapTopRight === null || corners.mapBotRight === null) {
 				console.log('invalid values: ' + corners.mapTopRight + ', ' + corners.mapBotRight);
 				// invalid values
-			} else if(level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== '#000000' || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== '#000000') {
+			} else if(level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== specialBlocks['blank'] || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== specialBlocks['blank']) {
 				// something to the right!
 				//console.log('hit something going right');
-				
 				// move to one left
 				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
 				this.vel.x = 0;
@@ -206,8 +205,9 @@ var player = {
 			if(corners.mapTopLeft === null || corners.mapBotLeft === null) {
 				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapBotLeft);
 				// invalid values
-			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== '#000000' || level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== '#000000') {
+			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== specialBlocks['blank'] || level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== specialBlocks['blank']) {
 				// something to the left!
+				// don't hit start
 				//console.log('hit something going left');
 				// move to one right
 				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
@@ -243,7 +243,7 @@ var player = {
 			if(corners.mapTopLeft === null || corners.mapTopRight === null) {
 				console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapTopRight);
 				// invalid values
-			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== '#000000' || level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== '#000000') {
+			} else if(level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y) !== specialBlocks['blank'] || level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y) !== specialBlocks['blank']) {
 				// something above!
 				//console.log('hit something going up');
 				// move to one up
@@ -254,13 +254,14 @@ var player = {
 			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
 				console.log('invalid values: ' + corners.mapBotLeft + ', ' + corners.mapBotRight);
 				// invalid values
-			} else if(level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== '#000000' || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== '#000000') {
+			} else if(level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y) !== specialBlocks['blank'] || level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y) !== specialBlocks['blank']) {
 				// something below!
 				//console.log('hit something going down');
 				this.vel.y = 0;
 				
 				// stop left/right when hit
-				//this.vel.x = 0;
+				//this.vel.x = 0; // removed this for gameplay feel
+
 				// move to one down
 				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
 			}
@@ -518,6 +519,9 @@ function loadImages() {
 		level.map_data = ctx.getImageData(0, 0, level.level_map.width, level.level_map.height).data;
 		// clear level map
 		ctx.clearRect(0, 0, c.width, c.height);
+		var temp = level.getStart();
+		player.pos.x = temp.x * level.scale;
+		player.pos.y = (temp.y + 1) * level.scale;
 	
 		// flip image and translate down to fix coordinates
 		ctx.scale(1, -1); // flip over x axis
@@ -658,6 +662,26 @@ var level = {
 		}
 		return output;
 	},
+	getStart: function() {
+		for(var x = 0; x < this.level_map.width; x++) {
+			for(var y = 0; y < this.level_map.height; y++) {
+				if(this.colorAt(x,y) === specialBlocks['start']) {
+					return({x: x, y: y});
+				}
+			}
+		}
+		return({x: 0, y: 0});
+	},
+	getEnd: function() {
+		for(var x = 0; x < this.level_map.width; x++) {
+			for(var y = 0; y < this.level_map.height; y++) {
+				if(this.colorAt(x,y) === specialBlocks['end']) {
+					return({x: x, y: y});
+				}
+			}
+		}
+		return({x: 0, y: 0});
+	},
 	draw: function() {
 		var blockCount = 0;
 		if(this.map_data !== null) {
@@ -667,7 +691,7 @@ var level = {
 			for(var y = Math.floor(this.yOffset / this.scale); y < this.level_map.height; y++) {
 				for(var x = Math.floor(this.xOffset / this.scale); x < xDraw; x++) {
 					var thisColor = this.colorAt(x, y);
-					if(thisColor != '#000000') { // don't draw blank tiles
+					if(thisColor !== specialBlocks['blank']) { // don't draw blank tiles
 						// only draw if near canvas
 						if((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
 							if((y * this.scale) - this.yOffset >= -this.scale && (y * this.scale) - this.yOffset <= c.height) {
