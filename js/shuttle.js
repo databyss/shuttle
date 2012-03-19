@@ -345,7 +345,7 @@ function handleKeyDown(evt) {
 			}
 			break;
 		
-		defult:
+		default:
 			console.log('unknown key pressed: ' + evt.keyCode)
 	}
 }
@@ -369,7 +369,7 @@ function handleKeyUp(evt) {
 			input.up = false;
 			break;
 		
-		defult:
+		default:
 			console.log('unknown key released: ' + evt.keyCode)
 	}
 }
