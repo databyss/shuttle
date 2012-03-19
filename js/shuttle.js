@@ -304,6 +304,15 @@ var player = {
 				// move to one down
 				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
 			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
+				// something below!
+				//console.log('hit something going down');
+				this.vel.y = 0;
+				
+				// stop left/right when hit
+				//this.vel.x = 0; // removed this for gameplay feel
+
+				// move to one down
+				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
 			}
 		}
 
