@@ -2,6 +2,7 @@ var exitFlag = false;
 var pauseFlag = false;
 var lastUpdate = null;
 var backgrounds = [null, null];
+var engine = null;
 var c, ctx;
 
 // Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
@@ -60,10 +61,10 @@ var corners = {
 		this.botRight.x = point.x + object.drawWidth;
 		this.botRight.y = point.y;
 		
-		this.mapTopLeft = level.toMapCoord(this.topLeft);
-		this.mapTopRight = level.toMapCoord(this.topRight);
-		this.mapBotLeft = level.toMapCoord(this.botLeft);
-		this.mapBotRight = level.toMapCoord(this.botRight);
+		this.mapTopLeft = engine.levels[engine.currentLevel].toMapCoord(this.topLeft);
+		this.mapTopRight = engine.levels[engine.currentLevel].toMapCoord(this.topRight);
+		this.mapBotLeft = engine.levels[engine.currentLevel].toMapCoord(this.botLeft);
+		this.mapBotRight = engine.levels[engine.currentLevel].toMapCoord(this.botRight);
 		//this.debugOutput();
 	},
 	debugOutput: function() {
@@ -144,8 +145,8 @@ var player = {
 	},
 	update: function(ms) {
 		this.debugOutput();
-		var mapWidth = level.mapWidth();
-		var mapHeight = level.mapHeight();
+		var mapWidth = engine.levels[engine.currentLevel].mapWidth();
+		var mapHeight = engine.levels[engine.currentLevel].mapHeight();
 		// if nulls set to canvas size
 		if(mapWidth === null) {
 			mapWidth = c.width;
@@ -185,12 +186,12 @@ var player = {
 		}
 
 		// load array with player corners with x moved
-		corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
+		corners.fill({x: this.pos.x - engine.levels[engine.currentLevel].xOffset, y: this.pos.y - engine.levels[engine.currentLevel].yOffset}, this);
 		
 		// check collisions
 		if(this.vel.x > 0) {
-			var color1 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
-			var color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
+			var color1 = engine.levels[engine.currentLevel].colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
+			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
 			}
@@ -202,18 +203,18 @@ var player = {
 				// something to the right!
 				//console.log('hit something going right');
 				// move to one left
-				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
+				this.pos.x = (corners.mapBotRight.x * engine.levels[engine.currentLevel].scale) - this.drawWidth - 1;
 				this.vel.x = 0;
 			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something to the right!
 				//console.log('hit something going right');
 				// move to one left
-				this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
+				this.pos.x = (corners.mapBotRight.x * engine.levels[engine.currentLevel].scale) - this.drawWidth - 1;
 				this.vel.x = 0;
 			}
 		} else if(this.vel.x < 0) {
-			var color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
-			var color2 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
+			var color1 = engine.levels[engine.currentLevel].colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
+			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
 			}
@@ -226,14 +227,14 @@ var player = {
 				// don't hit start
 				//console.log('hit something going left');
 				// move to one right
-				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
+				this.pos.x = (corners.mapBotLeft.x + 1) * engine.levels[engine.currentLevel].scale;
 				this.vel.x = 0;
 			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something to the left!
 				// don't hit start
 				//console.log('hit something going left');
 				// move to one right
-				this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
+				this.pos.x = (corners.mapBotLeft.x + 1) * engine.levels[engine.currentLevel].scale;
 				this.vel.x = 0;
 			}
 		}
@@ -258,12 +259,12 @@ var player = {
 		}
 
 		// load array with player corners with y moved
-		corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
+		corners.fill({x: this.pos.x - engine.levels[engine.currentLevel].xOffset, y: this.pos.y - engine.levels[engine.currentLevel].yOffset}, this);
 
 		// check collision
 		if(this.vel.y > 0) {
-			var color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
-			var color2 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
+			var color1 = engine.levels[engine.currentLevel].colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
+			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
 			}
@@ -276,17 +277,17 @@ var player = {
 				//console.log('hit something going up');
 				// move to one up
 				this.vel.y = 0;
-				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
+				this.pos.y = (corners.mapTopLeft.y * engine.levels[engine.currentLevel].scale) - this.drawHeight - 1;
 			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something above!
 				//console.log('hit something going up');
 				// move to one up
 				this.vel.y = 0;
-				this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
+				this.pos.y = (corners.mapTopLeft.y * engine.levels[engine.currentLevel].scale) - this.drawHeight - 1;
 			}
 		} else {
-			var color1 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
-			var color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
+			var color1 = engine.levels[engine.currentLevel].colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
+			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
 			}
@@ -302,7 +303,7 @@ var player = {
 				//this.vel.x = 0; // removed this for gameplay feel
 
 				// move to one down
-				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
+				this.pos.y = (corners.mapBotLeft.y + 1) * engine.levels[engine.currentLevel].scale;
 			} else if(color2 !== specialBlocks['blank'] && color2 !== specialBlocks['start']) {
 				// something below!
 				//console.log('hit something going down');
@@ -312,37 +313,37 @@ var player = {
 				//this.vel.x = 0; // removed this for gameplay feel
 
 				// move to one down
-				this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
+				this.pos.y = (corners.mapBotLeft.y + 1) * engine.levels[engine.currentLevel].scale;
 			}
 		}
 
 		
 		// adjust side scrolling
-		if(this.pos.x - level.xOffset >= c.width / 2) {
-			level.xOffset = this.pos.x - (c.width / 2);			
+		if(this.pos.x - engine.levels[engine.currentLevel].xOffset >= c.width / 2) {
+			engine.levels[engine.currentLevel].xOffset = this.pos.x - (c.width / 2);			
 		}
-		if(this.pos.x - level.xOffset < (c.width / 2)) {
-			level.xOffset = this.pos.x - (c.width / 2);
+		if(this.pos.x - engine.levels[engine.currentLevel].xOffset < (c.width / 2)) {
+			engine.levels[engine.currentLevel].xOffset = this.pos.x - (c.width / 2);
 		}
-		if(level.xOffset < 0) {
-			level.xOffset = 0;
+		if(engine.levels[engine.currentLevel].xOffset < 0) {
+			engine.levels[engine.currentLevel].xOffset = 0;
 		}
-		if(level.xOffset > mapWidth - c.width) {
-			level.xOffset = mapWidth - c.width;
+		if(engine.levels[engine.currentLevel].xOffset > mapWidth - c.width) {
+			engine.levels[engine.currentLevel].xOffset = mapWidth - c.width;
 		}
 
 		// adjust side scrolling
-		if(this.pos.y - level.yOffset >= c.height / 2) {
-			level.yOffset = this.pos.y - (c.height / 2);			
+		if(this.pos.y - engine.levels[engine.currentLevel].yOffset >= c.height / 2) {
+			engine.levels[engine.currentLevel].yOffset = this.pos.y - (c.height / 2);			
 		}
-		if(this.pos.y - level.yOffset < (c.height / 2)) {
-			level.yOffset = this.pos.y - (c.height / 2);
+		if(this.pos.y - engine.levels[engine.currentLevel].yOffset < (c.height / 2)) {
+			engine.levels[engine.currentLevel].yOffset = this.pos.y - (c.height / 2);
 		}
-		if(level.yOffset < 0) {
-			level.yOffset = 0;
+		if(engine.levels[engine.currentLevel].yOffset < 0) {
+			engine.levels[engine.currentLevel].yOffset = 0;
 		}
-		if(level.yOffset > mapHeight - c.height) {
-			level.yOffset = mapHeight - c.height;
+		if(engine.levels[engine.currentLevel].yOffset > mapHeight - c.height) {
+			engine.levels[engine.currentLevel].yOffset = mapHeight - c.height;
 		}
 
 	},
@@ -351,7 +352,7 @@ var player = {
 		//ctx.fillStyle = this.color;
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		if(player.image !== null) {
-			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - level.xOffset, this.pos.y - level.yOffset,  this.drawWidth, this.drawHeight);
+			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - engine.levels[engine.currentLevel].xOffset, this.pos.y - engine.levels[engine.currentLevel].yOffset,  this.drawWidth, this.drawHeight);
 		}
 	}
 }
@@ -416,12 +417,26 @@ function handleKeyDown(evt) {
 		case inputKeys.backMap: // backMap Key
 			if(!input.backMap) {
 				input.backMap = true;
+				engine.prevLevel();
+				// reset player position
+				var temp = engine.levels[engine.currentLevel].getStart();
+				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
+				player.pos.y = (temp.y + 1) * engine.levels[engine.currentLevel].scale;
+				player.update(1);
 			}
 			break;
 		
 		case inputKeys.upMap: // upMap Key
 			if(!input.upMap) {
 				input.upMap = true;
+				engine.nextLevel();
+				console.log('next map');
+				// reset player position
+				var temp = engine.levels[engine.currentLevel].getStart();
+				console.log('setting player at (' + temp.x + ', ' + temp.y + ')');
+				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
+				player.pos.y = (temp.y + 1) * engine.levels[engine.currentLevel].scale;
+				player.update(1);
 			}
 			break;
 		
@@ -484,13 +499,13 @@ function drawDebugGrid(method) {
 	switch(method) {
 		case 'grid':
 			ctx.strokeStyle = '#ff0000';
-			for(var x = 0; x < c.width; x+=level.scale) {
+			for(var x = 0; x < c.width; x+= engine.levels[engine.currentLevel].scale) {
 				ctx.beginPath();
 				ctx.moveTo(x, 0);
 				ctx.lineTo(x, c.height);
 				ctx.stroke();
 			}
-			for(var y = 0; y < c.height; y += level.scale) {
+			for(var y = 0; y < c.height; y += engine.levels[engine.currentLevel].scale) {
 				ctx.beginPath();
 				ctx.moveTo(0, y);
 				ctx.lineTo(c.width, y);
@@ -521,7 +536,7 @@ function gameLoop() {
 					
 	$('#gameDebug').html(clickDebug);		
 	input.debugOutput();
-	if(!exitFlag && !pauseFlag) {
+	if(!exitFlag && !pauseFlag && engine !== null) {
 
 		// draw bg's
 		for(var i = 0; i < backgrounds.length; i++) {
@@ -529,17 +544,19 @@ function gameLoop() {
 				backgrounds[i].update(newUpdate - lastUpdate);
 				if(i === 0) {
 					// clear bg on first one
-					backgrounds[i].draw(level, true);
+					backgrounds[i].draw(engine.levels[engine.currentLevel], true);
 				} else {
-					backgrounds[i].draw(level, false);
+					backgrounds[i].draw(engine.levels[engine.currentLevel], false);
 				}
 			}
 		}
-
-		level.draw();
+		
+		engine.levels[engine.currentLevel].draw();
 		drawDebugGrid(); // 'crosshair' or 'grid'
-		player.draw();
-		player.update(newUpdate - lastUpdate);
+		if(player !== null) {
+			player.draw();
+			player.update(newUpdate - lastUpdate);
+		}
 	} else {
 		//player.debugOutput();
 	}
@@ -561,16 +578,12 @@ function loadImages() {
 		backgrounds[0].image = imageManager.getAsset('images/spacebg64x64.png');
 		backgrounds[1].image = imageManager.getAsset('images/bgstars.png');
 		
-		// load level image map
-		level.level_map = imageManager.getAsset('images/level1.png');
-		ctx.drawImage(level.level_map, 0, 0);
-		// load image into map data
-		level.map_data = ctx.getImageData(0, 0, level.level_map.width, level.level_map.height).data;
-		// clear level map
-		ctx.clearRect(0, 0, c.width, c.height);
-		var temp = level.getStart();
-		player.pos.x = temp.x * level.scale;
-		player.pos.y = (temp.y + 1) * level.scale;
+		engine.addLevel(imageManager.getAsset('images/level1.png'));
+		engine.addLevel(imageManager.getAsset('images/level2.png'));
+
+		var temp = engine.levels[engine.currentLevel].getStart();
+		player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
+		player.pos.y = (temp.y + 1) * engine.levels[engine.currentLevel].scale;
 	
 		// flip image and translate down to fix coordinates
 		ctx.scale(1, -1); // flip over x axis
@@ -597,6 +610,8 @@ function setupCanvas() {
 }
 
 $(function() {
+	engine = new GameEngine();
+	
 	// initizlise background objects
 	backgrounds[0] = new background();
 	backgrounds[0].scrollFactor.x = 0.25;
@@ -640,45 +655,30 @@ $(function() {
     })();
 });
 
-//BEGIN RAF SHIM
-// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// shim layer with setTimeout fallback
-window.requestAnimFrame = (function() {
-	return	window.requestAnimationFrame       || 
-			window.webkitRequestAnimationFrame || 
-			window.mozRequestAnimationFrame    || 
-			window.oRequestAnimationFrame      || 
-			window.msRequestAnimationFrame     || 
-			function(callback){
-				window.setTimeout(callback, 1000 / 60);
-			};
-})();
-// END RAF SHIM
-
-var level = {
-	level_map: null,
-	map_data: null,
-	xOffset: 0,
-	yOffset: 0,
-	scale: 40,
-	scaleMinusOne: 39,
-	gravity: 7,
-	mapWidth: function() {
+function Level() {
+	this.level_map = null;
+	this.map_data = null;
+	this.xOffset = 0;
+	this.yOffset = 0;
+	this.scale = 40;
+	this.scaleMinusOne = 39;
+	this.gravity = 7;
+	this.mapWidth = function() {
 		if(this.level_map !== null) {
 			return(this.level_map.width * this.scale);
 		} else {
 			return null;
 		}
 		
-	},
-	mapHeight: function() {
+	};
+	this.mapHeight = function() {
 		if(this.level_map !== null) { 
 			return(this.level_map.height * this.scale);
 		} else {
 			return null;
 		}
-	},
-	colorAt: function(x, y) {
+	};
+	this.colorAt = function(x, y) {
 		var output = '#000000';
 		if(this.map_data !== null) {
 			if(x >= 0 && y >= 0 && x < this.level_map.width && y < this.level_map.height) {
@@ -710,8 +710,8 @@ var level = {
 			}
 		}
 		return output;
-	},
-	getStart: function() {
+	};
+	this.getStart = function() {
 		for(var x = 0; x < this.level_map.width; x++) {
 			for(var y = 0; y < this.level_map.height; y++) {
 				if(this.colorAt(x,y) === specialBlocks['start']) {
@@ -720,8 +720,8 @@ var level = {
 			}
 		}
 		return({x: 0, y: 0});
-	},
-	getEnd: function() {
+	};
+	this.getEnd = function() {
 		for(var x = 0; x < this.level_map.width; x++) {
 			for(var y = 0; y < this.level_map.height; y++) {
 				if(this.colorAt(x,y) === specialBlocks['end']) {
@@ -730,8 +730,8 @@ var level = {
 			}
 		}
 		return({x: 0, y: 0});
-	},
-	draw: function() {
+	};
+	this.draw = function() {
 		var blockCount = 0;
 		if(this.map_data !== null) {
 			// precalculate max x value in map array
@@ -758,8 +758,8 @@ var level = {
 			}						
 		}
 		if(input.debug) input.debug = false;
-	},
-	toMapCoord: function(point) {
+	};
+	this.toMapCoord = function(point) {
 		var p = {
 			x: point.x.valueOf(),
 			y: point.y.valueOf()
@@ -774,8 +774,8 @@ var level = {
 		} else {
 			return p.valueOf();
 		}
-	},
-	debugOutput: function() {
+	};
+	this.debugOutput = function() {
 		var debugOutput = $('#gameDebug').html() + '<br />Level Debug:';
 		debugOutput += '<table><tr><td>start</td><td>(' + this.xOffset.toFixed(2) + ', ' + this.yOffset.toFixed(2) + ')</td></tr>';
 		debugOutput += '<tr><td>map width</td><td>(' + this.mapWidth().toFixed(2) + ')</td></tr>';
@@ -784,8 +784,35 @@ var level = {
 		debugOutput += '<tr><td>scaleMinusOne</td><td>(' + this.scaleMinusOne.toFixed(2) + ')</td></tr>';
 		debugOutput += '<tr><td>gravity</td><td>(' + this.gravity.toFixed(2) + ')</td></tr></table>';
 		$('#gameDebug').html(debugOutput);
-	}	
+	};
 }
+
+// BEGIN GameEngine
+function GameEngine() {
+	this.levels = [];
+	this.currentLevel = 0;
+	this.addLevel = function(levelMap) {
+		var levelID = this.levels.length;
+		this.levels.push(new Level());
+		// load level image map
+		this.levels[levelID].level_map = levelMap;
+		// draw map for grabbing data
+		ctx.drawImage(this.levels[levelID].level_map, 0, 0);
+		// load image into map data
+		this.levels[levelID].map_data = ctx.getImageData(0, 0, this.levels[levelID].level_map.width, this.levels[levelID].level_map.height).data;
+		// clear level map
+		ctx.clearRect(0, 0, c.width, c.height);		
+	};
+	this.nextLevel = function() {
+		this.currentLevel++;
+		if(this.currentLevel >= this.levels.length) this.currentLevel = 0;
+	};
+	this.prevLevel = function() {
+		this.currentLevel--;
+		if(this.currentLevel < 0) this.currentLevel = this.levels.length - 1;
+	};
+}
+// END GameEngine
 
 // BEGIN ImageLoader Scripts
 // ImageLoader based on http://www.html5rocks.com/en/tutorials/games/assetmanager/
@@ -891,3 +918,18 @@ function background() {
 	}
 }
 // END background class
+
+//BEGIN RAF SHIM
+// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function() {
+	return	window.requestAnimationFrame       || 
+			window.webkitRequestAnimationFrame || 
+			window.mozRequestAnimationFrame    || 
+			window.oRequestAnimationFrame      || 
+			window.msRequestAnimationFrame     || 
+			function(callback){
+				window.setTimeout(callback, 1000 / 60);
+			};
+})();
+// END RAF SHIM
