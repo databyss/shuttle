@@ -426,6 +426,8 @@ function handleKeyDown(evt) {
 				var temp = engine.levels[engine.currentLevel].getStart();
 				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
 				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
+				player.vel.x = 0;
+				player.vel.y = 0;
 				player.update(1);
 			}
 			break;
@@ -440,6 +442,8 @@ function handleKeyDown(evt) {
 				console.log('setting player at (' + temp.x + ', ' + temp.y + ')');
 				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
 				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
+				player.vel.x = 0;
+				player.vel.y = 0;
 				player.update(1);
 			}
 			break;
