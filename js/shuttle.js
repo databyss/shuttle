@@ -610,12 +610,6 @@ function loadImages() {
 		var temp = engine.levels[engine.currentLevel].getStart();
 		player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
 		player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
-
-		// flip image and translate down to fix coordinates
-		ctx.scale(1, -1); // flip over x axis
-		ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
-		ctx.translate(0.5, 0.5); // offset for aliasing
-
 		
 		player.image = imageManager.getAsset('images/tardis_spin.png');
 		player.frames = 5;
@@ -632,7 +626,10 @@ function setupCanvas() {
 	// canvas defaults
 	ctx.lineWidth = 1;
 
-	// set more after loading bg image
+	// flip image and translate down to fix coordinates
+	ctx.scale(1, -1); // flip over x axis
+	ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
+	ctx.translate(0.5, 0.5); // offset for aliasing
 }
 
 $(function() {
