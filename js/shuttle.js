@@ -615,12 +615,12 @@ $(function() {
 	engine = new GameEngine();
 	
 	// initizlise background objects
-	backgrounds[0] = new background();
+	backgrounds[0] = new Background();
 	backgrounds[0].scrollFactor.x = 0.25;
 	backgrounds[0].scrollFactor.y = 0.25;
 	backgrounds[0].scale = 2;
 
-	backgrounds[1] = new background();
+	backgrounds[1] = new Background();
 	backgrounds[1].scrollFactor.x = 0.5;
 	backgrounds[1].scrollFactor.y = 0.5;
 	backgrounds[1].scale = 0.8;
@@ -912,7 +912,7 @@ ImageLoader.prototype.getAsset = function(path) {
 // END ImageLoader Scripts
 
 // background class from canvasbg project http://www.github.com/databyss/canvasbg
-function background() {
+function Background() {
 	this.image = null;
 	this.scale = 1;
 	this.scroll = {
