@@ -194,6 +194,7 @@ var player = {
 			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
+				pauseFlag = true;
 			}
 			// moving right
 			if(corners.mapTopRight === null || corners.mapBotRight === null) {
@@ -217,6 +218,7 @@ var player = {
 			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
+				pauseFlag = true;
 			}
 			// moving left
 			if(corners.mapTopLeft === null || corners.mapBotLeft === null) {
@@ -267,6 +269,7 @@ var player = {
 			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
+				pauseFlag = true;
 			}
 			// moving up
 			if(corners.mapTopLeft === null || corners.mapTopRight === null) {
@@ -290,6 +293,7 @@ var player = {
 			var color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
 			if(color1 === specialBlocks['end'] || color2 === specialBlocks['end']) {
 				console.log('WINNER!');
+				pauseFlag = true;
 			}
 			if(corners.mapBotLeft === null || corners.mapBotRight === null) {
 				console.log('invalid values: ' + corners.mapBotLeft + ', ' + corners.mapBotRight);
