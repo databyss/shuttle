@@ -17,6 +17,7 @@ var inputKeys = { // defines key codes used for input
 	right: 68, // d
 	left: 65, // a
 	quit: 27, // ESC
+	reset: 82, // r
 	pause: 80, // p
 	backMap: 90, // z
 	upMap: 88, // x
@@ -88,6 +89,7 @@ var input = {
 	up: false,
 	right: false,
 	quit: false,
+	reset: false,
 	pause: false,
 	backMap: false,
 	upMap: false,
@@ -96,6 +98,7 @@ var input = {
 		debugOutput += '<table><tr><td>up</td><td>(' + this.up + ')</td></tr>';
 		debugOutput += '<tr><td>left</td><td>(' + this.left + ')</td></tr>';
 		debugOutput += '<tr><td>right</td><td>(' + this.right + ')</td></tr>';
+		debugOutput += '<tr><td>reset</td><td>(' + this.reset + ')</td></tr>';
 		debugOutput += '<tr><td>pause</td><td>(' + this.pause + ')</td></tr>';
 		debugOutput += '<tr><td>backMap</td><td>(' + this.backMap + ')</td></tr>';
 		debugOutput += '<tr><td>upMap</td><td>(' + this.upMap + ')</td></tr>';
@@ -418,6 +421,17 @@ function handleKeyDown(evt) {
 			}
 			break;
 		
+		case inputKeys.reset: // reset
+			if(!input.reset) {
+				var temp = engine.levels[engine.currentLevel].getStart();
+				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
+				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
+				player.vel.x = 0;
+				player.vel.y = 0;
+				engine.levelTimer = 0;
+			}
+			break;
+			
 		case inputKeys.backMap: // backMap Key
 			if(!input.backMap) {
 				input.backMap = true;
@@ -428,7 +442,6 @@ function handleKeyDown(evt) {
 				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
 				player.vel.x = 0;
 				player.vel.y = 0;
-				player.update(1);
 			}
 			break;
 		
@@ -444,7 +457,6 @@ function handleKeyDown(evt) {
 				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
 				player.vel.x = 0;
 				player.vel.y = 0;
-				player.update(1);
 			}
 			break;
 		
@@ -484,6 +496,10 @@ function handleKeyUp(evt) {
 		
 		case inputKeys.pause: // pause Key
 			input.pause = false;
+			break;
+		
+		case inputKeys.reset: // reset Key
+			input.reset = false;
 			break;
 		
 		case inputKeys.backMap: // backMap Key
