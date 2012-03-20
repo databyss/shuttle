@@ -537,11 +537,12 @@ function gameLoop() {
 	$('#gameDebug').html(clickDebug);		
 	input.debugOutput();
 	if(!exitFlag && !pauseFlag && engine !== null) {
-
+		var timeChange = newUpdate - lastUpdate;
+		
 		// draw bg's
 		for(var i = 0; i < backgrounds.length; i++) {
 			if(backgrounds[i] !== null) {
-				backgrounds[i].update(newUpdate - lastUpdate);
+				backgrounds[i].update(timeChange);
 				if(i === 0) {
 					// clear bg on first one
 					backgrounds[i].draw(engine.levels[engine.currentLevel], true);
@@ -550,13 +551,14 @@ function gameLoop() {
 				}
 			}
 		}
-		
+		engine.update(timeChange);
 		engine.levels[engine.currentLevel].draw();
 		drawDebugGrid(); // 'crosshair' or 'grid'
 		if(player !== null) {
 			player.draw();
-			player.update(newUpdate - lastUpdate);
+			player.update(timeChange);
 		}
+		engine.drawTimer();
 	} else {
 		//player.debugOutput();
 	}
@@ -791,6 +793,7 @@ function Level() {
 function GameEngine() {
 	this.levels = [];
 	this.currentLevel = 0;
+	this.levelTimer = 0;
 	this.addLevel = function(levelMap) {
 		var levelID = this.levels.length;
 		this.levels.push(new Level());
@@ -806,10 +809,56 @@ function GameEngine() {
 	this.nextLevel = function() {
 		this.currentLevel++;
 		if(this.currentLevel >= this.levels.length) this.currentLevel = 0;
+		this.levelTimer = 0;
 	};
 	this.prevLevel = function() {
 		this.currentLevel--;
 		if(this.currentLevel < 0) this.currentLevel = this.levels.length - 1;
+		this.levelTimer = 0;
+	};
+	this.update = function(ms) {
+		this.levelTimer += ms;
+	};
+	this.drawTimer = function() {
+		// parse timer
+		var min = 0, sec = 0, timer = this.levelTimer.valueOf();
+		
+		min = Math.floor(timer / 60000);
+		timer -= 60000 * min;
+		// convert to string :)
+		if(min < 10) {
+			min = '0' + min.toString();
+		} else {
+			min = min.toString();
+		}
+		
+		sec = Math.floor(timer / 1000);
+		timer -= 1000 * sec;
+		// convert to string :)
+		if(sec < 10) {
+			sec = '0' + sec.toString();
+		} else {
+			sec = sec.toString();
+		}
+		
+
+		// set font properties
+		ctx.fillStyle = '#ff0000';
+		ctx.font = '30px sans-serif';
+		ctx.textAlign = 'left';
+		ctx.textBaseline = 'bottom';
+		
+		// save current context configuration
+		ctx.save()
+		// undo translations so text appears normal
+		ctx.translate(0, c.height);
+		ctx.scale(1, -1);
+		
+		// draw text
+		ctx.fillText(min + ':' + sec + '.' + timer.toFixed(0), c.width - 150, 40);
+		
+		// restore context
+		ctx.restore();
 	};
 }
 // END GameEngine
