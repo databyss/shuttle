@@ -421,7 +421,7 @@ function handleKeyDown(evt) {
 				// reset player position
 				var temp = engine.levels[engine.currentLevel].getStart();
 				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-				player.pos.y = (temp.y + 1) * engine.levels[engine.currentLevel].scale;
+				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
 				player.update(1);
 			}
 			break;
@@ -435,7 +435,7 @@ function handleKeyDown(evt) {
 				var temp = engine.levels[engine.currentLevel].getStart();
 				console.log('setting player at (' + temp.x + ', ' + temp.y + ')');
 				player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-				player.pos.y = (temp.y + 1) * engine.levels[engine.currentLevel].scale;
+				player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
 				player.update(1);
 			}
 			break;
@@ -585,8 +585,8 @@ function loadImages() {
 
 		var temp = engine.levels[engine.currentLevel].getStart();
 		player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-		player.pos.y = (temp.y + 1) * engine.levels[engine.currentLevel].scale;
-	
+		player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
+
 		// flip image and translate down to fix coordinates
 		ctx.scale(1, -1); // flip over x axis
 		ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
