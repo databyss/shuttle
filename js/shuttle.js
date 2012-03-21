@@ -747,7 +747,7 @@ function setupCanvas() {
 $(function () {
 	"use strict";
 	engine = new GameEngine();
-	
+
 	// initizlise background objects
 	backgrounds[0] = new Background();
 	backgrounds[0].scrollFactor.x = 0.25;
@@ -763,42 +763,41 @@ $(function () {
 	// on ready
 	setupCanvas();
 	loadImages(); //TODO: async, need to wait for finish before moving on.
-	
+
 	// add listeners for keyboard input
 	window.addEventListener('keydown', handleKeyDown, true);
 	window.addEventListener('keyup', handleKeyUp, true);
 	window.addEventListener('mousedown', handleMouseDown, true);
 	window.addEventListener('mouseup', handleMouseUp, true);
-	
+
 	// debug
 	$("#gameCanvas").click(function (e) {
-		var gc = $("#gameCanvas");
-	    var x = e.pageX - gc.offset().left;
-	    var y = e.pageY - gc.offset().top;
-	    var map = level.toMapCoord({x: x, y: c.height - y});
-	    
+		var gc, x, y, map;
+		gc = $("#gameCanvas");
+	    x = e.pageX - gc.offset().left;
+	    y = e.pageY - gc.offset().top;
+	    map = engine.levels[engine.currentLevel].toMapCoord({x: x, y: c.height - y});
 		clickDebug =  'Click Debug:';
 		clickDebug += '<table><tr><td>click</td><td>(' + e.pageX + ', ' + e.pageY + ')</td></tr>';
 		clickDebug += '<tr><td>canvas</td><td>(' + Math.round(x) + ', ' + Math.round(y) + ')</td></tr>';
 		clickDebug += '<tr><td>game</td><td>(' + Math.round(x) + ', ' + (c.height - Math.round(y)) + ')</td></tr>';
 		clickDebug += '<tr><td>map</td><td>(' + Math.round(map.x) + ', ' + Math.round(map.y) + ')</td></tr>';
-		clickDebug += '<tr><td>color</td><td>(' + level.colorAt(map.x, map.y) + ')</td></tr></table>';
+		clickDebug += '<tr><td>color</td><td>(' + engine.levels[engine.currentLevel].colorAt(map.x, map.y) + ')</td></tr></table>';
 	});
 
 	//BEGIN RAF SHIM
 	// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 	// shim layer with setTimeout fallback
-	window.requestAnimFrame = (function() {
-		"use strict";
+	window.requestAnimFrame = (function () {
 		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
 			window.setTimeout(callback, 1000 / 60);
 		};
 	})();
 	// END RAF SHIM
 
-	(function animloop (){
-      requestAnimFrame(animloop);
-      gameLoop();
+	(function animloop() {
+		requestAnimFrame(animloop);
+		gameLoop();
     })();
 });
 
@@ -811,22 +810,21 @@ function Level() {
 	this.scale = 40;
 	this.scaleMinusOne = 39;
 	this.gravity = 7;
-	this.mapWidth = function() {
+	this.mapWidth = function () {
+		var returnValue = null;
 		if (this.level_map !== null) {
-			return(this.level_map.width * this.scale);
-		} else {
-			return null;
+			returnValue = this.level_map.width * this.scale;
 		}
-		
+		return returnValue;
 	};
-	this.mapHeight = function() {
-		if (this.level_map !== null) { 
-			return(this.level_map.height * this.scale);
-		} else {
-			return null;
+	this.mapHeight = function () {
+		var returnValue = null;
+		if (this.level_map !== null) {
+			returnValue = this.level_map.height * this.scale;
 		}
+		return returnValue;
 	};
-	this.colorAt = function(x, y) {
+	this.colorAt = function (x, y) {
 		var output, start;
 		output = '#000000';
 		if (this.map_data !== null) {
@@ -853,45 +851,46 @@ function Level() {
 						output += (this.map_data[start]).toString(16);
 					}
 				} catch (e) {
-					console.log('Error getting map_data for (' + x + ', ' + y + ')');					
+					console.log('Error getting map_data for (' + x + ', ' + y + ')');
 				}
 				return output;
 			}
 		}
 		return output;
 	};
-	this.getStart = function() {
+	this.getStart = function () {
 		var x, y;
 		for (x = 0; x < this.level_map.width; x += 1) {
 			for (y = 0; y < this.level_map.height; y += 1) {
-				if (this.colorAt(x,y) === specialBlocks.start) {
-					return({x: x, y: y});
+				if (this.colorAt(x, y) === specialBlocks.start) {
+					return ({x: x, y: y});
 				}
 			}
 		}
-		return({x: 0, y: 0});
+		return ({x: 0, y: 0});
 	};
-	this.getEnd = function() {
-		for(var x = 0; x < this.level_map.width; x += 1) {
-			for(var y = 0; y < this.level_map.height; y += 1) {
-				if(this.colorAt(x,y) === specialBlocks.end) {
-					return({x: x, y: y});
+	this.getEnd = function () {
+		var x, y;
+		for (x = 0; x < this.level_map.width; x += 1) {
+			for (y = 0; y < this.level_map.height; y += 1) {
+				if (this.colorAt(x, y) === specialBlocks.end) {
+					return ({x: x, y: y});
 				}
 			}
 		}
-		return({x: 0, y: 0});
+		return ({x: 0, y: 0});
 	};
-	this.draw = function() {
+	this.draw = function () {
 		var blockCount, xDraw, yDraw, x, y, thisColor;
 		blockCount = 0;
-		if(this.map_data !== null) {
+		if (this.map_data !== null) {
 			// precalculate max x value in map array
 			xDraw = Math.floor(this.xOffset / this.scale) + Math.floor(c.width / this.scale) + 1;
 			yDraw = Math.floor(this.yOffset / this.scale) + Math.floor(c.height / this.scale) + 1;
 			for (y = Math.floor(this.yOffset / this.scale); y < this.level_map.height; y += 1) {
 				for (x = Math.floor(this.xOffset / this.scale); x < xDraw; x += 1) {
 					thisColor = this.colorAt(x, y);
-					if (thisColor !== specialBlocks['blank']) { // don't draw blank tiles
+					if (thisColor !== specialBlocks.blank) { // don't draw blank tiles
 						// only draw if near canvas
 						if ((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
 							if ((y * this.scale) - this.yOffset >= -this.scale && (y * this.scale) - this.yOffset <= c.height) {
@@ -906,29 +905,29 @@ function Level() {
 						}
 					}
 				}
-			}						
+			}
 		}
-		if(input.debug) {
+		if (input.debug) {
 			input.debug = false;
 		}
 	};
-	this.toMapCoord = function(point) {
+	this.toMapCoord = function (point) {
 		var p = {
-			x: point.x.valueOf(),
-			y: point.y.valueOf()
-		}
-		
+			x: point.x,
+			y: point.y
+		};
+
 		p.x = Math.floor((p.x + this.xOffset) / this.scale); // map is full length, so get that
 		p.y = Math.floor((p.y + this.yOffset) / this.scale);
-		
+
 		// check in bounds
 		if (p.x < 0 || p.x > this.level_map.width || p.y < 0 || p.y > this.level_map.height) {
-			return null;
-		} else {
-			return p.valueOf();
+			p = null;
 		}
+
+		return p;
 	};
-	this.debugOutput = function() {
+	this.debugOutput = function () {
 		var debugOutput = $('#gameDebug').html() + '<br />Level Debug:';
 		debugOutput += '<table><tr><td>start</td><td>(' + this.xOffset.toFixed(2) + ', ' + this.yOffset.toFixed(2) + ')</td></tr>';
 		debugOutput += '<tr><td>map width</td><td>(' + this.mapWidth().toFixed(2) + ')</td></tr>';
@@ -942,6 +941,7 @@ function Level() {
 
 // BEGIN GameEngine
 function GameEngine() {
+	"use strict";
 	this.levels = [];
 	this.currentLevel = 0;
 	this.levelTimer = 0;
