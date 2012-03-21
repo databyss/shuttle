@@ -524,7 +524,7 @@ function handleKeyDown(evt) {
 
 	case inputKeys.reset: // reset
 		if (!input.reset) {
-			engine.resetPlayer();
+			engine.resetLevel();
 		}
 		break;
 
@@ -961,7 +961,7 @@ function GameEngine() {
 		}
 		this.resetPlayer();
 	};
-	this.resetPlayer = function () {
+	this.resetLevel = function () {
 		var temp = this.levels[engine.currentLevel].getStart();
 		this.player.pos.x = temp.x * this.levels[engine.currentLevel].scale;
 		this.player.pos.y = temp.y * this.levels[engine.currentLevel].scale;
