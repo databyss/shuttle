@@ -184,33 +184,34 @@ function Background() {
 }
 // END background class
 
-var player = {
-	width: 0,
-	height: 0,
-	drawWidth: 34,
-	drawHeight: 50,
-	pos: { // player position
+function Player () {
+	"use strict";
+	this.width = 0;
+	this.height = 0;
+	this.drawWidth = 34;
+	this.drawHeight = 50;
+	this.pos = { // player position
 		x: 512,
 		y: 550
-	},
-	vel: { // player velocity
+	};
+	this.vel = { // player velocity
 		x: 0,
 		y: 0
-	},
-	maxVel: {
+	};
+	this.maxVel = {
 		x: 20,
 		y: 20
-	},
-	color: '#ffffff',
-	thrust: 12,
-	sideThrust: 12,
-	gravity: 12,
-	image: null,
-	frames: 5,
-	fps: 20,
-	currentFrame: 0,
-	timeCounter: 0,
-	nextFrame: function (ms) {
+	};
+	this.color = '#ffffff';
+	this.thrust = 12;
+	this.sideThrust = 12;
+	this.gravity = 12;
+	this.image = null;
+	this.frames = 5;
+	this.fps = 20;
+	this.currentFrame = 0;
+	this.timeCounter = 0;
+	this.nextFrame = function (ms) {
 		"use strict";
 		this.timeCounter += ms;
 		if (this.timeCounter > (1000 / this.fps)) {
@@ -220,16 +221,16 @@ var player = {
 		if (this.currentFrame >= this.frames) {
 			this.currentFrame = 0;
 		}
-	},
-	debugOutput: function () {
+	};
+	this.debugOutput = function () {
 		"use strict";
 		var debugOutput = $('#gameDebug').html() + '<br />Player Debug:';
 		debugOutput += '<table><tr><td>pos</td><td>(' + this.pos.x.toFixed(2) + ', ' + this.pos.y.toFixed(2) + ')</td></tr>';
 		debugOutput += '<tr><td>vel</td><td>(' + this.vel.x.toFixed(2) + ', ' + this.vel.y.toFixed(2) + ')</td></tr>';
 		debugOutput += '<tr><td>frame</td><td>(' + this.currentFrame + ')</td></tr></table>';
 		$('#gameDebug').html(debugOutput);
-	},
-	update: function (ms) {
+	};
+	this.update = function (ms) {
 		"use strict";
 		this.debugOutput();
 		var msDiff, mapWidth, mapHeight, color1, color2;
@@ -445,17 +446,17 @@ var player = {
 		if (engine.levels[engine.currentLevel].yOffset > mapHeight - c.height) {
 			engine.levels[engine.currentLevel].yOffset = mapHeight - c.height;
 		}
-	},
-	draw: function () {
+	};
+	this.draw = function () {
 		"use strict";
 		// draw player
 		//ctx.fillStyle = this.color;
 		//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
-		if (player.image !== null) {
+		if (this.image !== null) {
 			ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - engine.levels[engine.currentLevel].xOffset, this.pos.y - engine.levels[engine.currentLevel].yOffset,  this.drawWidth, this.drawHeight);
 		}
-	}
-};
+	};
+}
 
 function calcLandingForce() {
 	"use strict";
@@ -485,13 +486,12 @@ function handleMouseUp(evt) {
 
 function handleKeyDown(evt) {
 	"use strict";
-	var temp;
 
 	//console.log(evt.keyCode);
 	switch (evt.keyCode) {
 	case inputKeys.quit: // ESC Key
 		input.quit = true;
-		exitFlag = true;
+		engine.exitFlag = true;
 		//console.log('Exiting Game');
 		break;
 
@@ -518,18 +518,13 @@ function handleKeyDown(evt) {
 	case inputKeys.pause: // pause Key
 		if (!input.pause) {
 			input.pause = true;
-			pauseFlag = !pauseFlag; // toggle
+			engine.pauseFlag = !engine.pauseFlag; // toggle
 		}
 		break;
 
 	case inputKeys.reset: // reset
 		if (!input.reset) {
-			temp = engine.levels[engine.currentLevel].getStart();
-			player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-			player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
-			player.vel.x = 0;
-			player.vel.y = 0;
-			engine.levelTimer = 0;
+			engine.resetPlayer();
 		}
 		break;
 
@@ -537,12 +532,6 @@ function handleKeyDown(evt) {
 		if (!input.backMap) {
 			input.backMap = true;
 			engine.prevLevel();
-			// reset player position
-			temp = engine.levels[engine.currentLevel].getStart();
-			player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-			player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
-			player.vel.x = 0;
-			player.vel.y = 0;
 		}
 		break;
 
@@ -550,14 +539,6 @@ function handleKeyDown(evt) {
 		if (!input.upMap) {
 			input.upMap = true;
 			engine.nextLevel();
-			console.log('next map');
-			// reset player position
-			temp = engine.levels[engine.currentLevel].getStart();
-			console.log('setting player at (' + temp.x + ', ' + temp.y + ')');
-			player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-			player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
-			player.vel.x = 0;
-			player.vel.y = 0;
 		}
 		break;
 
@@ -686,9 +667,8 @@ function gameLoop() {
 		engine.update(timeChange);
 		engine.levels[engine.currentLevel].draw();
 		drawDebugGrid(); // 'crosshair' or 'grid'
-		if (player !== null) {
-			player.draw();
-			player.update(timeChange);
+		if (engine.player !== null) {
+			engine.player.draw();
 		}
 		engine.drawTimer();
 	}
@@ -714,15 +694,12 @@ function loadImages() {
 
 		engine.addLevel(imageManager.getAsset('images/level1.png'));
 		engine.addLevel(imageManager.getAsset('images/level2.png'));
-
-		temp = engine.levels[engine.currentLevel].getStart();
-		player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
-		player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
-
-		player.image = imageManager.getAsset('images/tardis_spin.png');
-		player.frames = 5;
-		player.width = (player.image.width / player.frames);
-		player.height = player.image.height;
+		engine.resetPlayer();
+		
+		engine.player.image = imageManager.getAsset('images/tardis_spin.png');
+		engine.player.frames = 5;
+		engine.player.width = (engine.player.image.width / engine.player.frames);
+		engine.player.height = engine.player.image.height;
 	});
 }
 
@@ -943,6 +920,7 @@ function GameEngine() {
 	this.exitFlag = false;
 	this.pauseFlag = false;
 	this.levels = [];
+	this.player = new Player();
 	this.currentLevel = 0;
 	this.levelTimer = 0;
 	this.addLevel = function (levelMap) {
@@ -974,17 +952,26 @@ function GameEngine() {
 		if (this.currentLevel >= this.levels.length) {
 			this.currentLevel = 0;
 		}
-		this.levelTimer = 0;
+		this.resetPlayer();
 	};
 	this.prevLevel = function () {
 		this.currentLevel -= 1;
 		if (this.currentLevel < 0) {
 			this.currentLevel = this.levels.length - 1;
 		}
-		this.levelTimer = 0;
+		this.resetPlayer();
 	};
+	this.resetPlayer = function () {
+		var temp = this.levels[engine.currentLevel].getStart();
+		this.player.pos.x = temp.x * this.levels[engine.currentLevel].scale;
+		this.player.pos.y = temp.y * this.levels[engine.currentLevel].scale;
+		this.player.vel.x = 0;
+		this.player.vel.y = 0;
+		this.levelTimer = 0;
+	}
 	this.update = function (ms) {
 		this.levelTimer += ms;
+		this.player.update(ms);
 	};
 	this.drawTimer = function() {
 		// parse timer
