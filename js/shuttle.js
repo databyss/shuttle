@@ -156,7 +156,6 @@ function Background() {
 		if (this.scroll.x < 0) {
 			this.scroll.x = this.gameWidth() - 1;
 		}
-		
 		if (this.scroll.y > this.gameHeight()) {
 			this.scroll.y = 0;
 		}
@@ -172,7 +171,7 @@ function Background() {
 		if (this.image !== null) {
 			xPoint = this.scroll.x - ((gameWorld.xOffset * this.scrollFactor.x) % this.gameWidth()) - (this.gameWidth() * 2); // replace by scroll and scrollFactor
 			yPoint = this.scroll.y - ((gameWorld.yOffset * this.scrollFactor.y) % this.gameHeight()) - (this.gameHeight() * 2);
-			
+
 			while (xPoint < c.width) {
 				while (yPoint < c.height) {
 					//TODO: if image is too big, only draw to edge of canvas
@@ -182,26 +181,10 @@ function Background() {
 				yPoint = this.scroll.y - ((gameWorld.yOffset * this.scrollFactor.y) % this.gameHeight()) - (this.gameHeight() * 2);
 				xPoint += this.gameWidth();
 			}
-			//console.log('finished drawing bg1');
 		}
-	}
+	};
 }
 // END background class
-
-//BEGIN RAF SHIM
-// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// shim layer with setTimeout fallback
-window.requestAnimFrame = (function() {
-	return	window.requestAnimationFrame       || 
-			window.webkitRequestAnimationFrame || 
-			window.mozRequestAnimationFrame    || 
-			window.oRequestAnimationFrame      || 
-			window.msRequestAnimationFrame     || 
-			function(callback){
-				window.setTimeout(callback, 1000 / 60);
-			};
-})();
-// END RAF SHIM
 
 var player = {
 	width: 0,
@@ -718,19 +701,19 @@ function loadImages() {
 	"use strict";
 	// preload images	
 	var imageManager = new ImageLoader();
-	
+
 	imageManager.queueDownload('images/tardis1.png');
 	imageManager.queueDownload('images/tardis_spin.png');
 	imageManager.queueDownload('images/spacebg64x64.png');
 	imageManager.queueDownload('images/bgstars.png');
 	imageManager.queueDownload('images/level1.png');
 	imageManager.queueDownload('images/level2.png');
-	
+
 	imageManager.downloadAll(function () {
 		var temp;
 		backgrounds[0].image = imageManager.getAsset('images/spacebg64x64.png');
 		backgrounds[1].image = imageManager.getAsset('images/bgstars.png');
-		
+
 		engine.addLevel(imageManager.getAsset('images/level1.png'));
 		engine.addLevel(imageManager.getAsset('images/level2.png'));
 
@@ -761,7 +744,7 @@ function setupCanvas() {
 
 }
 
-$(function() {
+$(function () {
 	"use strict";
 	engine = new GameEngine();
 	
@@ -801,6 +784,17 @@ $(function() {
 		clickDebug += '<tr><td>map</td><td>(' + Math.round(map.x) + ', ' + Math.round(map.y) + ')</td></tr>';
 		clickDebug += '<tr><td>color</td><td>(' + level.colorAt(map.x, map.y) + ')</td></tr></table>';
 	});
+
+	//BEGIN RAF SHIM
+	// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+	// shim layer with setTimeout fallback
+	window.requestAnimFrame = (function() {
+		"use strict";
+		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+			window.setTimeout(callback, 1000 / 60);
+		};
+	})();
+	// END RAF SHIM
 
 	(function animloop (){
       requestAnimFrame(animloop);
