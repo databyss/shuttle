@@ -1,5 +1,3 @@
-var exitFlag = false;
-var pauseFlag = false;
 var lastUpdate = null;
 var backgrounds = [null, null];
 var engine = null;
@@ -670,7 +668,7 @@ function gameLoop() {
 
 	$('#gameDebug').html(clickDebug);
 	input.debugOutput();
-	if (!exitFlag && !pauseFlag && engine !== null) {
+	if (!engine.exitFlag && !engine.pauseFlag && engine !== null) {
 		timeChange = newUpdate - lastUpdate;
 
 		// draw bg's
@@ -721,11 +719,6 @@ function loadImages() {
 		player.pos.x = temp.x * engine.levels[engine.currentLevel].scale;
 		player.pos.y = temp.y * engine.levels[engine.currentLevel].scale;
 
-		// flip image and translate down to fix coordinates
-		ctx.scale(1, -1); // flip over x axis
-		ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
-		ctx.translate(0.5, 0.5); // offset for aliasing
-
 		player.image = imageManager.getAsset('images/tardis_spin.png');
 		player.frames = 5;
 		player.width = (player.image.width / player.frames);
@@ -741,6 +734,11 @@ function setupCanvas() {
 
 	// canvas defaults
 	ctx.lineWidth = 1;
+
+	// flip image and translate down to fix coordinates
+	ctx.scale(1, -1); // flip over x axis
+	ctx.translate(0, -c.height); // move (0,0) to bottom left to match cartisian plane 
+	ctx.translate(0.5, 0.5); // offset for aliasing
 
 }
 
@@ -942,20 +940,34 @@ function Level() {
 // BEGIN GameEngine
 function GameEngine() {
 	"use strict";
+	this.exitFlag = false;
+	this.pauseFlag = false;
 	this.levels = [];
 	this.currentLevel = 0;
 	this.levelTimer = 0;
 	this.addLevel = function (levelMap) {
 		var levelID = this.levels.length;
+		
 		this.levels.push(new Level());
 		// load level image map
 		this.levels[levelID].level_map = levelMap;
+		
+		// save current context configuration
+		ctx.save()
+		// undo translations so image loading is normal
+		ctx.translate(0, c.height);
+		ctx.scale(1, -1);
+		ctx.translate(-0.5, 0); // offset for aliasing
+
 		// draw map for grabbing data
 		ctx.drawImage(this.levels[levelID].level_map, 0, 0);
 		// load image into map data
 		this.levels[levelID].map_data = ctx.getImageData(0, 0, this.levels[levelID].level_map.width, this.levels[levelID].level_map.height).data;
 		// clear level map
-		ctx.clearRect(0, 0, c.width, c.height);		
+		ctx.clearRect(0, 0, c.width, c.height);
+		
+		// restore context
+		ctx.restore();		
 	};
 	this.nextLevel = function () {
 		this.currentLevel += 1;
