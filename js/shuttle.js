@@ -73,17 +73,7 @@ var corners = {
 		this.mapTopRight = engine.levels[engine.currentLevel].toMapCoord(this.topRight);
 		this.mapBotLeft = engine.levels[engine.currentLevel].toMapCoord(this.botLeft);
 		this.mapBotRight = engine.levels[engine.currentLevel].toMapCoord(this.botRight);
-	},
-	debugOutput: function () {
-		"use strict";
-		var debugOutput = $('#gameDebug').html() + '<br />Corner Debug:<table border="1"><tr><td></td><td>x,y</td><td>map x,y</td><td>at map x,y</td></tr>';
-		debugOutput += '<tr><td>topLeft</td><td>(' + this.topLeft.x.toFixed(1) + ', ' + this.topLeft.y.toFixed(1) + ')</td><td>(' + this.mapTopLeft.x + ', ' + this.mapTopLeft.y + ')</td><td>' + engine.levels[engine.currentLevel].map[this.mapTopLeft.y][this.mapTopLeft.x] + '</td></tr>';
-		debugOutput += '<tr><td>topRight</td><td>(' + this.topRight.x.toFixed(1) + ', ' + this.topRight.y.toFixed(1) + ')</td><td>(' + this.mapTopRight.x + ', ' + this.mapTopRight.y + ')</td><td>' + engine.levels[engine.currentLevel].map[this.mapTopRight.y][this.mapTopRight.x] + '</td></tr>';
-		debugOutput += '<tr><td>botLeft</td><td>(' + this.botLeft.x.toFixed(1) + ', ' + this.botLeft.y.toFixed(1) + ')</td><td>(' + this.mapBotLeft.x + ', ' + this.mapBotLeft.y + ')</td><td>' + engine.levels[engine.currentLevel].map[this.mapBotLeft.y][this.mapBotLeft.x] + '</td></tr>';
-		debugOutput += '<tr><td>botRight</td><td>(' + this.botRight.x.toFixed(1) + ', ' + this.botRight.y.toFixed(1) + ')</td><td>(' + this.mapBotRight.x + ', ' + this.mapBotRight.y + ')</td><td>' + engine.levels[engine.currentLevel].map[this.mapBotRight.y][this.mapBotRight.x] + '</td></tr></table>';
-		$('#gameDebug').html(debugOutput);
-	}
-};
+	}};
 
 var specialBlocks = {
 	blank: '#000000',
@@ -100,20 +90,7 @@ var input = {
 	reset: false,
 	pause: false,
 	backMap: false,
-	upMap: false,
-	debugOutput: function () {
-		"use strict";
-		var debugOutput = $('#gameDebug').html() + '<br />Input Debug:';
-		debugOutput += '<table><tr><td>up</td><td>(' + this.up + ')</td></tr>';
-		debugOutput += '<tr><td>left</td><td>(' + this.left + ')</td></tr>';
-		debugOutput += '<tr><td>right</td><td>(' + this.right + ')</td></tr>';
-		debugOutput += '<tr><td>reset</td><td>(' + this.reset + ')</td></tr>';
-		debugOutput += '<tr><td>pause</td><td>(' + this.pause + ')</td></tr>';
-		debugOutput += '<tr><td>backMap</td><td>(' + this.backMap + ')</td></tr>';
-		debugOutput += '<tr><td>upMap</td><td>(' + this.upMap + ')</td></tr>';
-		debugOutput += '<tr><td>quit</td><td>(' + this.quit + ')</td></tr></table>';
-		$('#gameDebug').html(debugOutput);
-	}
+	upMap: false
 };
 
 // background class from canvasbg project http://www.github.com/databyss/canvasbg
@@ -222,17 +199,8 @@ function Player () {
 			this.currentFrame = 0;
 		}
 	};
-	this.debugOutput = function () {
-		"use strict";
-		var debugOutput = $('#gameDebug').html() + '<br />Player Debug:';
-		debugOutput += '<table><tr><td>pos</td><td>(' + this.pos.x.toFixed(2) + ', ' + this.pos.y.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>vel</td><td>(' + this.vel.x.toFixed(2) + ', ' + this.vel.y.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>frame</td><td>(' + this.currentFrame + ')</td></tr></table>';
-		$('#gameDebug').html(debugOutput);
-	};
 	this.update = function (ms) {
 		"use strict";
-		this.debugOutput();
 		var msDiff, mapWidth, mapHeight, color1, color2;
 
 		msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
@@ -525,6 +493,9 @@ function handleKeyDown(evt) {
 	case inputKeys.reset: // reset
 		if (!input.reset) {
 			engine.resetLevel();
+			if (!engine.pause) {
+				engine.pause = false;
+			}
 		}
 		break;
 
@@ -648,30 +619,34 @@ function gameLoop() {
 	}
 
 	$('#gameDebug').html(clickDebug);
-	input.debugOutput();
+
 	if (!engine.exitFlag && !engine.pauseFlag && engine !== null) {
 		timeChange = newUpdate - lastUpdate;
 
-		// draw bg's
 		for (i = 0; i < backgrounds.length; i += 1) {
-			if (backgrounds[i] !== null) {
-				backgrounds[i].update(timeChange);
-				if (i === 0) {
-					// clear bg on first one
-					backgrounds[i].draw(engine.levels[engine.currentLevel], true);
-				} else {
-					backgrounds[i].draw(engine.levels[engine.currentLevel], false);
-				}
-			}
+			backgrounds[i].update(timeChange);
 		}
 		engine.update(timeChange);
-		engine.levels[engine.currentLevel].draw();
-		drawDebugGrid(); // 'crosshair' or 'grid'
-		if (engine.player !== null) {
-			engine.player.draw();
-		}
-		engine.drawTimer();
 	}
+
+	// draw bg's
+	for (i = 0; i < backgrounds.length; i += 1) {
+		if (backgrounds[i] !== null) {
+			if (i === 0) {
+				// clear bg on first one
+				backgrounds[i].draw(engine.levels[engine.currentLevel], true);
+			} else {
+				backgrounds[i].draw(engine.levels[engine.currentLevel], false);
+			}
+		}
+	}
+
+	engine.draw();
+	drawDebugGrid(); // 'crosshair' or 'grid'
+	if (engine.player !== null) {
+		engine.player.draw();
+	}
+
 	lastUpdate = newUpdate;
 }
 
@@ -902,23 +877,13 @@ function Level() {
 
 		return p;
 	};
-	this.debugOutput = function () {
-		var debugOutput = $('#gameDebug').html() + '<br />Level Debug:';
-		debugOutput += '<table><tr><td>start</td><td>(' + this.xOffset.toFixed(2) + ', ' + this.yOffset.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>map width</td><td>(' + this.mapWidth().toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>map height</td><td>(' + this.mapHeight().toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>scale</td><td>(' + this.scale.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>scaleMinusOne</td><td>(' + this.scaleMinusOne.toFixed(2) + ')</td></tr>';
-		debugOutput += '<tr><td>gravity</td><td>(' + this.gravity.toFixed(2) + ')</td></tr></table>';
-		$('#gameDebug').html(debugOutput);
-	};
 }
 
 // BEGIN GameEngine
 function GameEngine() {
 	"use strict";
 	this.exitFlag = false;
-	this.pauseFlag = false;
+	this.pauseFlag = true;
 	this.levels = [];
 	this.player = new Player();
 	this.currentLevel = 0;
@@ -968,12 +933,44 @@ function GameEngine() {
 		this.player.vel.x = 0;
 		this.player.vel.y = 0;
 		this.levelTimer = 0;
+		this.player.update(0);
 	}
 	this.update = function (ms) {
 		this.levelTimer += ms;
 		this.player.update(ms);
 	};
-	this.drawTimer = function() {
+	this.draw = function () {
+		// draw level
+		this.levels[this.currentLevel].draw();
+		
+		// draw player
+		this.player.draw();
+		
+		// draw timer
+		this.drawTimer();
+		
+		// if paused, show pause flag
+		if (this.pauseFlag === true) {
+			// set font properties
+			ctx.fillStyle = '#ff0000';
+			ctx.font = '48px sans-serif';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			
+			// save current context configuration
+			ctx.save()
+			// undo translations so text appears normal
+			ctx.translate(0, c.height);
+			ctx.scale(1, -1);
+			
+			// draw text
+			ctx.fillText('PAUSED!', c.width / 2, c.height / 2);
+			
+			// restore context
+			ctx.restore();
+		}
+	};
+	this.drawTimer = function () {
 		// parse timer
 		var min = 0, sec = 0, timer = this.levelTimer.valueOf();
 		
