@@ -952,14 +952,14 @@ function GameEngine() {
 		if (this.currentLevel >= this.levels.length) {
 			this.currentLevel = 0;
 		}
-		this.resetPlayer();
+		this.resetLevel();
 	};
 	this.prevLevel = function () {
 		this.currentLevel -= 1;
 		if (this.currentLevel < 0) {
 			this.currentLevel = this.levels.length - 1;
 		}
-		this.resetPlayer();
+		this.resetLevel();
 	};
 	this.resetLevel = function () {
 		var temp = this.levels[engine.currentLevel].getStart();
