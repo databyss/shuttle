@@ -694,7 +694,7 @@ function loadImages() {
 
 		engine.addLevel(imageManager.getAsset('images/level1.png'));
 		engine.addLevel(imageManager.getAsset('images/level2.png'));
-		engine.resetPlayer();
+		engine.resetLevel();
 		
 		engine.player.image = imageManager.getAsset('images/tardis_spin.png');
 		engine.player.frames = 5;
