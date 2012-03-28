@@ -488,6 +488,12 @@ function handleKeyDown(evt) {
 		}
 		break;
 
+	case inputKeys.down: // Down Key
+		if (!input.down) {
+			input.down = true;
+		}
+		break;
+
 	case inputKeys.pause: // pause Key
 		if (!input.pause) {
 			input.pause = true;
@@ -497,10 +503,8 @@ function handleKeyDown(evt) {
 
 	case inputKeys.reset: // reset
 		if (!input.reset) {
+			input.reset = true;
 			engine.resetLevel();
-			if (!engine.pause) {
-				engine.pause = false;
-			}
 		}
 		break;
 
@@ -521,6 +525,12 @@ function handleKeyDown(evt) {
 	case inputKeys.debug: // debug Key
 		if (!input.debug) {
 			input.debug = true;
+		}
+		break;
+
+	case inputKeys.select: // select Key
+		if (!input.select) {
+			input.select = true;
 		}
 		break;
 
@@ -549,6 +559,11 @@ function handleKeyUp(evt) {
 		input.up = false;
 		break;
 
+	case inputKeys.down: // Down Key
+		//console.log('up released');
+		input.down = false;
+		break;
+
 	case inputKeys.quit: // quit Key
 		input.quit = false;
 		break;
@@ -571,6 +586,10 @@ function handleKeyUp(evt) {
 
 	case inputKeys.debug: // debug Key
 		input.debug = false;
+		break;
+		
+	case inputKeys.select: // select Key
+		input.select = false;
 		break;
 
 	default:
@@ -933,11 +952,13 @@ function GameEngine() {
 	};
 	this.resetLevel = function () {
 		var temp = this.levels[engine.currentLevel].getStart();
+		
 		this.player.pos.x = temp.x * this.levels[engine.currentLevel].scale;
 		this.player.pos.y = temp.y * this.levels[engine.currentLevel].scale;
 		this.player.vel.x = 0;
 		this.player.vel.y = 0;
 		this.levelTimer = 0;
+		this.pauseFlag = true;
 		this.player.update(0);
 	}
 	this.update = function (ms) {
