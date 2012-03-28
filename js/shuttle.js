@@ -11,15 +11,32 @@ clickDebug += '<tr><td>canvas</td><td>(0,0)</td></tr>';
 clickDebug += '<tr><td>game</td><td>(0,0)</td></tr></table>';
 
 var inputKeys = { // defines key codes used for input
-	up: 87, // w
-	right: 68, // d
-	left: 65, // a
-	quit: 27, // ESC
-	reset: 82, // r
-	pause: 80, // p
+	up:		 87, // w
+	right:	 68, // d
+	left:	 65, // a
+	down:	 83, // s
+	select:	 69, // e
+	quit:	 27, // ESC
+	reset:	 82, // r
+	pause:	 80, // p
 	backMap: 90, // z
-	upMap: 88, // x
-	debug: 70 // f
+	upMap:	 88, // x
+	debug:	 70  // f
+};
+
+// input state object
+var input = {
+	up:		 false, // w
+	right:	 false, // d
+	left:	 false, // a
+	down:	 false, // s
+	select:	 false, // e
+	quit:	 false, // ESC
+	reset:	 false, // r
+	pause:	 false, // p
+	backMap: false, // z
+	upMap:	 false, // x
+	debug:	 false // f
 };
 
 var corners = {
@@ -79,18 +96,6 @@ var specialBlocks = {
 	blank: '#000000',
 	end: '#ff0000',
 	start: '#00ff00'
-};
-
-// input state object
-var input = {
-	left: false,
-	up: false,
-	right: false,
-	quit: false,
-	reset: false,
-	pause: false,
-	backMap: false,
-	upMap: false
 };
 
 // background class from canvasbg project http://www.github.com/databyss/canvasbg
