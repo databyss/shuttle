@@ -650,7 +650,6 @@ function gameLoop() {
 		for (i = 0; i < backgrounds.length; i += 1) {
 			backgrounds[i].update(timeChange);
 		}
-		engine.update(timeChange);
 	}
 
 	// draw bg's
@@ -664,6 +663,9 @@ function gameLoop() {
 			}
 		}
 	}
+
+	// update engine
+	engine.update(timeChange);
 
 	// draw engine
 	engine.draw();
@@ -912,7 +914,7 @@ function GameEngine() {
 	this.player = new Player();
 	this.currentLevel = 0;
 	this.levelTimer = 0;
-	this.startCountdown = 3000;
+	this.countdown = 3000;
 	this.addLevel = function (levelMap) {
 		var levelID = this.levels.length;
 		
@@ -961,10 +963,22 @@ function GameEngine() {
 		this.levelTimer = 0;
 		this.pauseFlag = true;
 		this.player.update(0);
+		this.countdown = 3000;
 	}
 	this.update = function (ms) {
-		this.levelTimer += ms;
-		this.player.update(ms);
+		if (!this.pauseFlag) {
+			this.levelTimer += ms;
+			this.player.update(ms);
+		}
+		if (this.countdown > 0) {
+			this.countdown -= ms;
+			if (this.countdown < 0) {
+				this.countdown = 0;
+				if (this.pauseFlag) {
+					this.pauseFlag = false;
+				}
+			}
+		}
 	};
 	this.draw = function () {
 		// draw level
@@ -991,7 +1005,11 @@ function GameEngine() {
 			ctx.scale(1, -1);
 			
 			// draw text
-			ctx.fillText('PAUSED!', c.width / 2, c.height / 2);
+			if (this.countdown > 0) {
+				ctx.fillText((this.countdown / 1000).toFixed(1), c.width / 2, c.height / 2);
+			} else {
+				ctx.fillText('PAUSED!', c.width / 2, c.height / 2);
+			}
 			
 			// restore context
 			ctx.restore();
