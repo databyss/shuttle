@@ -665,11 +665,11 @@ function gameLoop() {
 		}
 	}
 
+	// draw engine
 	engine.draw();
-	drawDebugGrid(); // 'crosshair' or 'grid'
-	if (engine.player !== null) {
-		engine.player.draw();
-	}
+	
+	// draw debug grid if necessary
+	//drawDebugGrid('grid'); // 'crosshair' or 'grid'
 
 	lastUpdate = newUpdate;
 }
