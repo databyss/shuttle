@@ -732,7 +732,7 @@ $(function () {
 	backgrounds[1].scrollFactor.x = 0.5;
 	backgrounds[1].scrollFactor.y = 0.5;
 	backgrounds[1].scale = 0.8;
-	backgrounds[1].velocity.x = -10;
+	backgrounds[1].velocity.x = -40;
 
 	// on ready
 	setupCanvas();
@@ -912,6 +912,7 @@ function GameEngine() {
 	this.player = new Player();
 	this.currentLevel = 0;
 	this.levelTimer = 0;
+	this.startCountdown = 3000;
 	this.addLevel = function (levelMap) {
 		var levelID = this.levels.length;
 		
