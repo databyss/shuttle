@@ -1,5 +1,4 @@
 var lastUpdate = null;
-var backgrounds = [null, null];
 var engine = null;
 var c, ctx;
 
@@ -644,25 +643,7 @@ function gameLoop() {
 
 	$('#gameDebug').html(clickDebug);
 
-	if (!engine.exitFlag && !engine.pauseFlag && engine !== null) {
-		timeChange = newUpdate - lastUpdate;
-
-		for (i = 0; i < backgrounds.length; i += 1) {
-			backgrounds[i].update(timeChange);
-		}
-	}
-
-	// draw bg's
-	for (i = 0; i < backgrounds.length; i += 1) {
-		if (backgrounds[i] !== null) {
-			if (i === 0) {
-				// clear bg on first one
-				backgrounds[i].draw(engine.levels[engine.currentLevel], true);
-			} else {
-				backgrounds[i].draw(engine.levels[engine.currentLevel], false);
-			}
-		}
-	}
+	timeChange = newUpdate - lastUpdate;
 
 	// update engine
 	engine.update(timeChange);
@@ -689,9 +670,8 @@ function loadImages() {
 	imageManager.queueDownload('images/level2.png');
 
 	imageManager.downloadAll(function () {
-		var temp;
-		backgrounds[0].image = imageManager.getAsset('images/spacebg64x64.png');
-		backgrounds[1].image = imageManager.getAsset('images/bgstars.png');
+		engine.addBackground(imageManager.getAsset('images/spacebg64x64.png'), 2, {x: 0.25, y: 0.25}); // image, scale, scrollFactor, velocity
+		engine.addBackground(imageManager.getAsset('images/bgstars.png'), 1, {x: 0.5, y: 0.5}, {x: -50, y: 0});
 
 		engine.addLevel(imageManager.getAsset('images/level1.png'));
 		engine.addLevel(imageManager.getAsset('images/level2.png'));
@@ -723,18 +703,6 @@ function setupCanvas() {
 $(function () {
 	"use strict";
 	engine = new GameEngine();
-
-	// initizlise background objects
-	backgrounds[0] = new Background();
-	backgrounds[0].scrollFactor.x = 0.25;
-	backgrounds[0].scrollFactor.y = 0.25;
-	backgrounds[0].scale = 2;
-
-	backgrounds[1] = new Background();
-	backgrounds[1].scrollFactor.x = 0.5;
-	backgrounds[1].scrollFactor.y = 0.5;
-	backgrounds[1].scale = 0.8;
-	backgrounds[1].velocity.x = -40;
 
 	// on ready
 	setupCanvas();
@@ -911,10 +879,39 @@ function GameEngine() {
 	this.exitFlag = false;
 	this.pauseFlag = true;
 	this.levels = [];
+	this.backgrounds = [];
 	this.player = new Player();
 	this.currentLevel = 0;
 	this.levelTimer = 0;
 	this.countdown = 3000;
+	this.addBackground = function (background, scale, scroll, velocity) {
+		var tempBG = new Background();
+
+		tempBG.image = background;
+		if (scale === undefined) {
+			tempBG.scale = 1;
+		} else {
+			tempBG.scale = scale;
+		}
+
+		if (scroll === undefined) {
+			tempBG.scrollFactor.x = 1;
+			tempBG.scrollFactor.y = 1;
+		} else {
+			tempBG.scrollFactor.x = scroll.x;
+			tempBG.scrollFactor.y = scroll.y;
+		}
+		
+		if (velocity === undefined) {
+			tempBG.velocity.x = 0;
+			tempBG.velocity.y = 0;
+		} else {
+			tempBG.velocity.x = velocity.x;
+			tempBG.velocity.y = velocity.y;
+		}
+		
+		this.backgrounds.push(tempBG);
+	};
 	this.addLevel = function (levelMap) {
 		var levelID = this.levels.length;
 		
@@ -967,7 +964,13 @@ function GameEngine() {
 	}
 	this.update = function (ms) {
 		if (!this.pauseFlag) {
+			
 			this.levelTimer += ms;
+			
+			for (var i = 0; i < this.backgrounds.length; i += 1) {
+				this.backgrounds[i].update(ms);
+			}
+			
 			this.player.update(ms);
 		}
 		if (this.countdown > 0) {
@@ -981,6 +984,18 @@ function GameEngine() {
 		}
 	};
 	this.draw = function () {
+		// draw background
+		for (var i = 0; i < this.backgrounds.length; i += 1) {
+			if (this.backgrounds[i] !== null) {
+				if (i === 0) {
+					// clear bg on first one
+					this.backgrounds[i].draw(this.levels[this.currentLevel], true);
+				} else {
+					this.backgrounds[i].draw(this.levels[this.currentLevel], false);
+				}
+			}
+		}
+
 		// draw level
 		this.levels[this.currentLevel].draw();
 		
