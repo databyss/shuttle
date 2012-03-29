@@ -960,7 +960,7 @@ function GameEngine() {
 		this.levelTimer = 0;
 		this.pauseFlag = true;
 		this.player.update(0);
-		this.countdown = 3000;
+		this.countdown = 1000; // 1 second for restart
 	}
 	this.update = function (ms) {
 		if (!this.pauseFlag) {
