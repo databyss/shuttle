@@ -924,9 +924,9 @@ define(['imageloader', 'background'], function() {
 				if (this.backgrounds[i] !== null) {
 					if (i === 0) {
 						// clear bg on first one
-						this.backgrounds[i].draw(c, ctx, this.levels[this.currentLevel], true);
+						this.backgrounds[i].draw(this.levels[this.currentLevel], true);
 					} else {
-						this.backgrounds[i].draw(c, ctx, this.levels[this.currentLevel], false);
+						this.backgrounds[i].draw(this.levels[this.currentLevel], false);
 					}
 				}
 			}
