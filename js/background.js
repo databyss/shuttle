@@ -1,5 +1,5 @@
 // background class from canvasbg project http://www.github.com/databyss/canvasbg
-function Background() {
+function Background(c, ctx) {
 	"use strict";
 	this.image = null;
 	this.scale = 1;
@@ -15,6 +15,8 @@ function Background() {
 		x: 0,
 		y: 0
 	};
+	this.c = c;
+	this.ctx = ctx;
 }
 
 // returns the drawn width of image
@@ -52,19 +54,19 @@ Background.prototype.update = function (ms) {
 };
 
 // render the background to the canvas
-Background.prototype.draw = function (c, ctx, gameWorld, clearScreen) {
+Background.prototype.draw = function (gameWorld, clearScreen) {
 	var xPoint, yPoint;
 	if (clearScreen) {
-		ctx.clearRect(0, 0, c.width, c.height);
+		this.ctx.clearRect(0, 0, this.c.width, this.c.height);
 	}
 	if (this.image !== null) {
 		xPoint = this.scroll.x - ((gameWorld.xOffset * this.scrollFactor.x) % this.gameWidth()) - (this.gameWidth() * 2); // replace by scroll and scrollFactor
 		yPoint = this.scroll.y - ((gameWorld.yOffset * this.scrollFactor.y) % this.gameHeight()) - (this.gameHeight() * 2);
 
-		while (xPoint < c.width) {
-			while (yPoint < c.height) {
+		while (xPoint < this.c.width) {
+			while (yPoint < this.c.height) {
 				//TODO: if image is too big, only draw to edge of canvas
-				ctx.drawImage(this.image, xPoint, yPoint, this.gameWidth(), this.gameHeight());
+				this.ctx.drawImage(this.image, xPoint, yPoint, this.gameWidth(), this.gameHeight());
 				yPoint += this.gameHeight();
 			}
 			yPoint = this.scroll.y - ((gameWorld.yOffset * this.scrollFactor.y) % this.gameHeight()) - (this.gameHeight() * 2);
