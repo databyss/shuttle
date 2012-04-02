@@ -1,10 +1,8 @@
-define(['imageloader', 'background', 'level'], function() {
+define(['imageloader', 'background', 'level', 'player'], function() {
 	var lastUpdate = null;
 	var engine = null;
 	var c, ctx;
 	
-	// require background object
-	require(['imageloader', 'background']);
 	// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
 	
 	var clickDebug =  'Click Debug:';
@@ -76,328 +74,7 @@ define(['imageloader', 'background', 'level'], function() {
 		}
 	}
 	
-	var corners = {
-		topLeft: {
-			x: null,
-			y: null
-		},
-		topRight: {
-			x: null,
-			y: null
-		},
-		botLeft: {
-			x: null,
-			y: null
-		},
-		botRight: {
-			x: null,
-			y: null
-		},
-		mapTopLeft: {
-			x: null,
-			y: null
-		},
-		mapTopRight: {
-			x: null,
-			y: null
-		},
-		mapBotLeft: {
-			x: null,
-			y: null
-		},
-		mapBotRight: {
-			x: null,
-			y: null
-		},
-		fill: function (point, object) {
-			"use strict";
-			this.topLeft.x = point.x;
-			this.topLeft.y = point.y + object.drawHeight;
-	
-			this.topRight.x = point.x + object.drawWidth;
-			this.topRight.y = point.y + object.drawHeight;
-	
-			this.botLeft.x = point.x;
-			this.botLeft.y = point.y;
-	
-			this.botRight.x = point.x + object.drawWidth;
-			this.botRight.y = point.y;
-	
-			this.mapTopLeft = engine.levels[engine.currentLevel].toMapCoord(this.topLeft);
-			this.mapTopRight = engine.levels[engine.currentLevel].toMapCoord(this.topRight);
-			this.mapBotLeft = engine.levels[engine.currentLevel].toMapCoord(this.botLeft);
-			this.mapBotRight = engine.levels[engine.currentLevel].toMapCoord(this.botRight);
-		}};
-		
-	function Player () {
-		"use strict";
-		this.width = 0;
-		this.height = 0;
-		this.drawWidth = 34;
-		this.drawHeight = 50;
-		this.pos = { // player position
-			x: 512,
-			y: 550
-		};
-		this.vel = { // player velocity
-			x: 0,
-			y: 0
-		};
-		this.maxVel = {
-			x: 20,
-			y: 20
-		};
-		this.color = '#ffffff';
-		this.thrust = 12;
-		this.sideThrust = 12;
-		this.gravity = 12;
-		this.image = null;
-		this.frames = 5;
-		this.fps = 20;
-		this.currentFrame = 0;
-		this.timeCounter = 0;
-		this.nextFrame = function (ms) {
-			"use strict";
-			this.timeCounter += ms;
-			if (this.timeCounter > (1000 / this.fps)) {
-				this.currentFrame += 1;
-				this.timeCounter = 0;
-			}
-			if (this.currentFrame >= this.frames) {
-				this.currentFrame = 0;
-			}
-		};
-		this.update = function (ms, level) {
-			"use strict";
-			var msDiff, mapWidth, mapHeight, color1, color2;
-	
-			if(level === null || level === undefined) {
-				return;
-			}
-			msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
-			mapWidth = level.mapWidth();
-			mapHeight = level.mapHeight();
-			
-			// if nulls set to canvas size
-			if (mapWidth === null) {
-				mapWidth = c.width;
-			}
-			if (mapHeight === null) {
-				mapHeight = c.height;
-			}
-			// ms is milliseconds since last input
-			this.nextFrame(ms);
-			if (input.left) {
-				this.vel.x -= this.sideThrust * msDiff;
-			}
-			if (input.right) {
-				this.vel.x += this.sideThrust * msDiff;
-			}
-			if (input.up) {
-				this.vel.y += this.thrust * msDiff;
-			} else {
-				this.vel.y -= this.gravity * msDiff;
-			}
-	
-			// clamp velocity
-			if (this.vel.x > this.maxVel.x) {
-				this.vel.x = this.maxVel.x;
-			}
-			if (this.vel.x < -this.maxVel.x) {
-				this.vel.x = -this.maxVel.x;
-			}
-			this.pos.x += this.vel.x;
-	
-			// check left edge of map
-			if (this.pos.x < 0) {
-				this.pos.x = 0;
-				this.vel.x = 0;
-			}
-			// check the right edge of the map
-			if (this.pos.x + this.drawWidth > mapWidth) {
-				this.pos.x = mapWidth - this.drawWidth;
-				this.vel.x = 0;
-			}
-	
-			// load array with player corners with x moved
-			corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
-	
-			// check collisions
-			if (this.vel.x > 0) {
-				color1 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
-				color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
-				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
-					console.log('WINNER!');
-					engine.pauseFlag = true;
-				}
-				// moving right
-				if (corners.mapTopRight === null || corners.mapBotRight === null) {
-					console.log('invalid values: ' + corners.mapTopRight + ', ' + corners.mapBotRight);
-					// invalid values
-				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
-					// something to the right!
-					//console.log('hit something going right');
-					// move to one left
-					this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
-					this.vel.x = 0;
-				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
-					// something to the right!
-					//console.log('hit something going right');
-					// move to one left
-					this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
-					this.vel.x = 0;
-				}
-			} else if (this.vel.x < 0) {
-				color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
-				color2 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
-				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
-					console.log('WINNER!');
-					engine.pauseFlag = true;
-				}
-				// moving left
-				if (corners.mapTopLeft === null || corners.mapBotLeft === null) {
-					console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapBotLeft);
-					// invalid values
-				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
-					// something to the left!
-					// don't hit start
-					//console.log('hit something going left');
-					// move to one right
-					this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
-					this.vel.x = 0;
-				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
-					// something to the left!
-					// don't hit start
-					//console.log('hit something going left');
-					// move to one right
-					this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
-					this.vel.x = 0;
-				}
-			}
-	
-			if (this.vel.y > this.maxVel.y) {
-				this.vel.y = this.maxVel.y;
-			}
-			if (this.vel.y < -this.maxVel.y) {
-				this.vel.y = -this.maxVel.y;
-			}
-			this.pos.y += this.vel.y;
-	
-			if (this.pos.y < 0) {
-				// display landing force
-				//console.log('Landed with a force of ' + calcLandingForce() + 'N');
-				this.pos.y = 0;
-				this.vel.y = 0;
-	
-				// hit floor, kill left/right momentum
-				this.vel.x = 0;
-			}
-	
-			if (this.pos.y + this.drawHeight > mapHeight) {
-				this.pos.y = mapHeight - this.drawHeight;
-				this.vel.y = 0;
-			}
-	
-			// load array with player corners with y moved
-			corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
-	
-			// check collision
-			if (this.vel.y > 0) {
-				color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
-				color2 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
-				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
-					console.log('WINNER!');
-					engine.pauseFlag = true;
-				}
-				// moving up
-				if (corners.mapTopLeft === null || corners.mapTopRight === null) {
-					console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapTopRight);
-					// invalid values
-				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
-					// something above!
-					//console.log('hit something going up');
-					// move to one up
-					this.vel.y = 0;
-					this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
-				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
-					// something above!
-					//console.log('hit something going up');
-					// move to one up
-					this.vel.y = 0;
-					this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
-				}
-			} else {
-				color1 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
-				color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
-				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
-					console.log('WINNER!');
-					engine.pauseFlag = true;
-				}
-				if (corners.mapBotLeft === null || corners.mapBotRight === null) {
-					console.log('invalid values: ' + corners.mapBotLeft + ', ' + corners.mapBotRight);
-					// invalid values
-				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
-					// something below!
-					//console.log('hit something going down');
-					this.vel.y = 0;
-	
-					// stop left/right when hit
-					//this.vel.x = 0; // removed this for gameplay feel
-	
-					// move to one down
-					this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
-				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
-					// something below!
-					//console.log('hit something going down');
-					this.vel.y = 0;
-	
-					// stop left/right when hit
-					//this.vel.x = 0; // removed this for gameplay feel
-	
-					// move to one down
-					this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
-				}
-			}
-	
-			// adjust side scrolling
-			if (this.pos.x - level.xOffset >= c.width / 2) {
-				level.xOffset = this.pos.x - (c.width / 2);
-			}
-			if (this.pos.x - level.xOffset < (c.width / 2)) {
-				level.xOffset = this.pos.x - (c.width / 2);
-			}
-			if (level.xOffset < 0) {
-				level.xOffset = 0;
-			}
-			if (level.xOffset > mapWidth - c.width) {
-				level.xOffset = mapWidth - c.width;
-			}
-	
-			// adjust side scrolling
-			if (this.pos.y - level.yOffset >= c.height / 2) {
-				level.yOffset = this.pos.y - (c.height / 2);
-			}
-			if (this.pos.y - level.yOffset < (c.height / 2)) {
-				level.yOffset = this.pos.y - (c.height / 2);
-			}
-			if (level.yOffset < 0) {
-				level.yOffset = 0;
-			}
-			if (level.yOffset > mapHeight - c.height) {
-				level.yOffset = mapHeight - c.height;
-			}
-		};
-		this.draw = function () {
-			"use strict";
-			// draw player
-			//ctx.fillStyle = this.color;
-			//ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
-			if (this.image !== null) {
-				ctx.drawImage(this.image, (this.currentFrame * this.width), 0, this.width, this.height, this.pos.x - engine.levels[engine.currentLevel].xOffset, this.pos.y - engine.levels[engine.currentLevel].yOffset,  this.drawWidth, this.drawHeight);
-			}
-		};
-	}
-	
+
 	function calcLandingForce() {
 		"use strict";
 		var playerMass, stoppingTime, acceleration, force;
@@ -635,10 +312,12 @@ define(['imageloader', 'background', 'level'], function() {
 	
 	$(function () {
 		"use strict";
-		engine = new GameEngine();
-	
+
 		// on ready
 		setupCanvas();
+
+		engine = new GameEngine();
+
 		loadImages(); //TODO: async, need to wait for finish before moving on.
 	
 		// add listeners for keyboard input
@@ -685,7 +364,7 @@ define(['imageloader', 'background', 'level'], function() {
 		this.pauseFlag = true;
 		this.levels = [];
 		this.backgrounds = [];
-		this.player = new Player();
+		this.player = new Player(c, ctx);
 		this.currentLevel = 0;
 		this.levelTimer = 0;
 		this.countdown = 3000;
@@ -764,7 +443,7 @@ define(['imageloader', 'background', 'level'], function() {
 			this.player.vel.y = 0;
 			this.levelTimer = 0;
 			this.pauseFlag = true;
-			this.player.update(0, this.levels[engine.currentLevel]);
+			this.player.update(0, this.levels[engine.currentLevel], input, this);
 			this.countdown = 1000; // 1 second for restart
 		}
 		this.update = function (ms) {
@@ -776,7 +455,8 @@ define(['imageloader', 'background', 'level'], function() {
 					this.backgrounds[i].update(ms);
 				}
 				
-				this.player.update(ms, this.levels[this.currentLevel]);
+				this.player.update(ms, this.levels[this.currentLevel], input, this);
+				
 			}
 			if (this.countdown > 0) {
 				this.countdown -= ms;
@@ -803,11 +483,11 @@ define(['imageloader', 'background', 'level'], function() {
 	
 			// draw level
 			if(this.levels.length > 0) {
-				this.levels[this.currentLevel].draw(c, ctx);
+				this.levels[this.currentLevel].draw();
 			}
 			
 			// draw player
-			this.player.draw(c, ctx);
+			this.player.draw(this.levels[this.currentLevel]);
 			
 			// draw timer
 			this.drawTimer(c, ctx);
