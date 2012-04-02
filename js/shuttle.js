@@ -1,4 +1,4 @@
-define(['imageloader', 'background'], function() {
+define(['imageloader', 'background', 'level'], function() {
 	var lastUpdate = null;
 	var engine = null;
 	var c, ctx;
@@ -128,13 +128,7 @@ define(['imageloader', 'background'], function() {
 			this.mapBotLeft = engine.levels[engine.currentLevel].toMapCoord(this.botLeft);
 			this.mapBotRight = engine.levels[engine.currentLevel].toMapCoord(this.botRight);
 		}};
-	
-	var specialBlocks = {
-		blank: '#000000',
-		end: '#ff0000',
-		start: '#00ff00'
-	};
-	
+		
 	function Player () {
 		"use strict";
 		this.width = 0;
@@ -173,13 +167,17 @@ define(['imageloader', 'background'], function() {
 				this.currentFrame = 0;
 			}
 		};
-		this.update = function (ms) {
+		this.update = function (ms, level) {
 			"use strict";
 			var msDiff, mapWidth, mapHeight, color1, color2;
 	
+			if(level === null || level === undefined) {
+				return;
+			}
 			msDiff = ms / 1000; // multiplicative factor to handle delays > 1 second
-			mapWidth = engine.levels[engine.currentLevel].mapWidth();
-			mapHeight = engine.levels[engine.currentLevel].mapHeight();
+			mapWidth = level.mapWidth();
+			mapHeight = level.mapHeight();
+			
 			// if nulls set to canvas size
 			if (mapWidth === null) {
 				mapWidth = c.width;
@@ -222,13 +220,13 @@ define(['imageloader', 'background'], function() {
 			}
 	
 			// load array with player corners with x moved
-			corners.fill({x: this.pos.x - engine.levels[engine.currentLevel].xOffset, y: this.pos.y - engine.levels[engine.currentLevel].yOffset}, this);
+			corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
 	
 			// check collisions
 			if (this.vel.x > 0) {
-				color1 = engine.levels[engine.currentLevel].colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
-				color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
-				if (color1 === specialBlocks.end || color2 === specialBlocks.end) {
+				color1 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
+				color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
+				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
 					console.log('WINNER!');
 					engine.pauseFlag = true;
 				}
@@ -236,23 +234,23 @@ define(['imageloader', 'background'], function() {
 				if (corners.mapTopRight === null || corners.mapBotRight === null) {
 					console.log('invalid values: ' + corners.mapTopRight + ', ' + corners.mapBotRight);
 					// invalid values
-				} else if (color1 !== specialBlocks.blank && color1 !== specialBlocks.start) {
+				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
 					// something to the right!
 					//console.log('hit something going right');
 					// move to one left
-					this.pos.x = (corners.mapBotRight.x * engine.levels[engine.currentLevel].scale) - this.drawWidth - 1;
+					this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
 					this.vel.x = 0;
-				} else if (color2 !== specialBlocks.blank && color2 !== specialBlocks.start) {
+				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
 					// something to the right!
 					//console.log('hit something going right');
 					// move to one left
-					this.pos.x = (corners.mapBotRight.x * engine.levels[engine.currentLevel].scale) - this.drawWidth - 1;
+					this.pos.x = (corners.mapBotRight.x * level.scale) - this.drawWidth - 1;
 					this.vel.x = 0;
 				}
 			} else if (this.vel.x < 0) {
-				color1 = engine.levels[engine.currentLevel].colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
-				color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
-				if (color1 === specialBlocks.end || color2 === specialBlocks.end) {
+				color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
+				color2 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
+				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
 					console.log('WINNER!');
 					engine.pauseFlag = true;
 				}
@@ -260,19 +258,19 @@ define(['imageloader', 'background'], function() {
 				if (corners.mapTopLeft === null || corners.mapBotLeft === null) {
 					console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapBotLeft);
 					// invalid values
-				} else if (color1 !== specialBlocks.blank && color1 !== specialBlocks.start) {
+				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
 					// something to the left!
 					// don't hit start
 					//console.log('hit something going left');
 					// move to one right
-					this.pos.x = (corners.mapBotLeft.x + 1) * engine.levels[engine.currentLevel].scale;
+					this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
 					this.vel.x = 0;
-				} else if (color2 !== specialBlocks.blank && color2 !== specialBlocks.start) {
+				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
 					// something to the left!
 					// don't hit start
 					//console.log('hit something going left');
 					// move to one right
-					this.pos.x = (corners.mapBotLeft.x + 1) * engine.levels[engine.currentLevel].scale;
+					this.pos.x = (corners.mapBotLeft.x + 1) * level.scale;
 					this.vel.x = 0;
 				}
 			}
@@ -301,13 +299,13 @@ define(['imageloader', 'background'], function() {
 			}
 	
 			// load array with player corners with y moved
-			corners.fill({x: this.pos.x - engine.levels[engine.currentLevel].xOffset, y: this.pos.y - engine.levels[engine.currentLevel].yOffset}, this);
+			corners.fill({x: this.pos.x - level.xOffset, y: this.pos.y - level.yOffset}, this);
 	
 			// check collision
 			if (this.vel.y > 0) {
-				color1 = engine.levels[engine.currentLevel].colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
-				color2 = engine.levels[engine.currentLevel].colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
-				if (color1 === specialBlocks.end || color2 === specialBlocks.end) {
+				color1 = level.colorAt(corners.mapTopLeft.x, corners.mapTopLeft.y);
+				color2 = level.colorAt(corners.mapTopRight.x, corners.mapTopRight.y);
+				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
 					console.log('WINNER!');
 					engine.pauseFlag = true;
 				}
@@ -315,30 +313,30 @@ define(['imageloader', 'background'], function() {
 				if (corners.mapTopLeft === null || corners.mapTopRight === null) {
 					console.log('invalid values: ' + corners.mapTopLeft + ', ' + corners.mapTopRight);
 					// invalid values
-				} else if (color1 !== specialBlocks.blank && color1 !== specialBlocks.start) {
+				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
 					// something above!
 					//console.log('hit something going up');
 					// move to one up
 					this.vel.y = 0;
-					this.pos.y = (corners.mapTopLeft.y * engine.levels[engine.currentLevel].scale) - this.drawHeight - 1;
-				} else if (color2 !== specialBlocks.blank && color2 !== specialBlocks.start) {
+					this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
+				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
 					// something above!
 					//console.log('hit something going up');
 					// move to one up
 					this.vel.y = 0;
-					this.pos.y = (corners.mapTopLeft.y * engine.levels[engine.currentLevel].scale) - this.drawHeight - 1;
+					this.pos.y = (corners.mapTopLeft.y * level.scale) - this.drawHeight - 1;
 				}
 			} else {
-				color1 = engine.levels[engine.currentLevel].colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
-				color2 = engine.levels[engine.currentLevel].colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
-				if (color1 === specialBlocks.end || color2 === specialBlocks.end) {
+				color1 = level.colorAt(corners.mapBotLeft.x, corners.mapBotLeft.y);
+				color2 = level.colorAt(corners.mapBotRight.x, corners.mapBotRight.y);
+				if (color1 === level.specialBlocks.end || color2 === level.specialBlocks.end) {
 					console.log('WINNER!');
 					engine.pauseFlag = true;
 				}
 				if (corners.mapBotLeft === null || corners.mapBotRight === null) {
 					console.log('invalid values: ' + corners.mapBotLeft + ', ' + corners.mapBotRight);
 					// invalid values
-				} else if (color1 !== specialBlocks.blank && color1 !== specialBlocks.start) {
+				} else if (color1 !== level.specialBlocks.blank && color1 !== level.specialBlocks.start) {
 					// something below!
 					//console.log('hit something going down');
 					this.vel.y = 0;
@@ -347,8 +345,8 @@ define(['imageloader', 'background'], function() {
 					//this.vel.x = 0; // removed this for gameplay feel
 	
 					// move to one down
-					this.pos.y = (corners.mapBotLeft.y + 1) * engine.levels[engine.currentLevel].scale;
-				} else if (color2 !== specialBlocks.blank && color2 !== specialBlocks.start) {
+					this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
+				} else if (color2 !== level.specialBlocks.blank && color2 !== level.specialBlocks.start) {
 					// something below!
 					//console.log('hit something going down');
 					this.vel.y = 0;
@@ -357,36 +355,36 @@ define(['imageloader', 'background'], function() {
 					//this.vel.x = 0; // removed this for gameplay feel
 	
 					// move to one down
-					this.pos.y = (corners.mapBotLeft.y + 1) * engine.levels[engine.currentLevel].scale;
+					this.pos.y = (corners.mapBotLeft.y + 1) * level.scale;
 				}
 			}
 	
 			// adjust side scrolling
-			if (this.pos.x - engine.levels[engine.currentLevel].xOffset >= c.width / 2) {
-				engine.levels[engine.currentLevel].xOffset = this.pos.x - (c.width / 2);
+			if (this.pos.x - level.xOffset >= c.width / 2) {
+				level.xOffset = this.pos.x - (c.width / 2);
 			}
-			if (this.pos.x - engine.levels[engine.currentLevel].xOffset < (c.width / 2)) {
-				engine.levels[engine.currentLevel].xOffset = this.pos.x - (c.width / 2);
+			if (this.pos.x - level.xOffset < (c.width / 2)) {
+				level.xOffset = this.pos.x - (c.width / 2);
 			}
-			if (engine.levels[engine.currentLevel].xOffset < 0) {
-				engine.levels[engine.currentLevel].xOffset = 0;
+			if (level.xOffset < 0) {
+				level.xOffset = 0;
 			}
-			if (engine.levels[engine.currentLevel].xOffset > mapWidth - c.width) {
-				engine.levels[engine.currentLevel].xOffset = mapWidth - c.width;
+			if (level.xOffset > mapWidth - c.width) {
+				level.xOffset = mapWidth - c.width;
 			}
 	
 			// adjust side scrolling
-			if (this.pos.y - engine.levels[engine.currentLevel].yOffset >= c.height / 2) {
-				engine.levels[engine.currentLevel].yOffset = this.pos.y - (c.height / 2);
+			if (this.pos.y - level.yOffset >= c.height / 2) {
+				level.yOffset = this.pos.y - (c.height / 2);
 			}
-			if (this.pos.y - engine.levels[engine.currentLevel].yOffset < (c.height / 2)) {
-				engine.levels[engine.currentLevel].yOffset = this.pos.y - (c.height / 2);
+			if (this.pos.y - level.yOffset < (c.height / 2)) {
+				level.yOffset = this.pos.y - (c.height / 2);
 			}
-			if (engine.levels[engine.currentLevel].yOffset < 0) {
-				engine.levels[engine.currentLevel].yOffset = 0;
+			if (level.yOffset < 0) {
+				level.yOffset = 0;
 			}
-			if (engine.levels[engine.currentLevel].yOffset > mapHeight - c.height) {
-				engine.levels[engine.currentLevel].yOffset = mapHeight - c.height;
+			if (level.yOffset > mapHeight - c.height) {
+				level.yOffset = mapHeight - c.height;
 			}
 		};
 		this.draw = function () {
@@ -680,134 +678,6 @@ define(['imageloader', 'background'], function() {
 	    })();
 	});
 	
-	function Level() {
-		"use strict";
-		this.level_map = null;
-		this.map_data = null;
-		this.xOffset = 0;
-		this.yOffset = 0;
-		this.scale = 40;
-		this.scaleMinusOne = 39;
-		this.gravity = 7;
-		this.mapWidth = function () {
-			var returnValue = null;
-			if (this.level_map !== null) {
-				returnValue = this.level_map.width * this.scale;
-			}
-			return returnValue;
-		};
-		this.mapHeight = function () {
-			var returnValue = null;
-			if (this.level_map !== null) {
-				returnValue = this.level_map.height * this.scale;
-			}
-			return returnValue;
-		};
-		this.colorAt = function (x, y) {
-			var output, start;
-			output = '#000000';
-			if (this.map_data !== null) {
-				if (x >= 0 && y >= 0 && x < this.level_map.width && y < this.level_map.height) {
-					start = (y * this.level_map.width * 4) + (x * 4); // 4 elements per pixel RGBA
-					try {
-						output = '#';
-						//(this.map_data[first]).toString(16) + (this.map_data[first + 1]).toString(16) + (this.map_data[first + 2]).toString(16);
-						if ((this.map_data[start]).toString(16).length < 2) {
-							output += '0' + (this.map_data[start]).toString(16);
-						} else {
-							output += (this.map_data[start]).toString(16);
-						}
-						start += 1;
-						if ((this.map_data[start]).toString(16).length < 2) {
-							output += '0' + (this.map_data[start]).toString(16);
-						} else {
-							output += (this.map_data[start]).toString(16);
-						}
-						start += 1;
-						if ((this.map_data[start]).toString(16).length < 2) {
-							output += '0' + (this.map_data[start]).toString(16);
-						} else {
-							output += (this.map_data[start]).toString(16);
-						}
-					} catch (e) {
-						console.log('Error getting map_data for (' + x + ', ' + y + ')');
-					}
-					return output;
-				}
-			}
-			return output;
-		};
-		this.getStart = function () {
-			var x, y;
-			for (x = 0; x < this.level_map.width; x += 1) {
-				for (y = 0; y < this.level_map.height; y += 1) {
-					if (this.colorAt(x, y) === specialBlocks.start) {
-						return ({x: x, y: y});
-					}
-				}
-			}
-			return ({x: 0, y: 0});
-		};
-		this.getEnd = function () {
-			var x, y;
-			for (x = 0; x < this.level_map.width; x += 1) {
-				for (y = 0; y < this.level_map.height; y += 1) {
-					if (this.colorAt(x, y) === specialBlocks.end) {
-						return ({x: x, y: y});
-					}
-				}
-			}
-			return ({x: 0, y: 0});
-		};
-		this.draw = function () {
-			var blockCount, xDraw, yDraw, x, y, thisColor;
-			blockCount = 0;
-			if (this.map_data !== null) {
-				// precalculate max x value in map array
-				xDraw = Math.floor(this.xOffset / this.scale) + Math.floor(c.width / this.scale) + 1;
-				yDraw = Math.floor(this.yOffset / this.scale) + Math.floor(c.height / this.scale) + 1;
-				for (y = Math.floor(this.yOffset / this.scale); y < this.level_map.height; y += 1) {
-					for (x = Math.floor(this.xOffset / this.scale); x < xDraw; x += 1) {
-						thisColor = this.colorAt(x, y);
-						if (thisColor !== specialBlocks.blank) { // don't draw blank tiles
-							// only draw if near canvas
-							if ((x * this.scale) - this.xOffset >= -this.scale && (x * this.scale) - this.xOffset <= c.width) {
-								if ((y * this.scale) - this.yOffset >= -this.scale && (y * this.scale) - this.yOffset <= c.height) {
-									//TODO add bounds checking for yOffset too
-									ctx.fillStyle = thisColor;
-									ctx.fillRect((x * this.scale) - this.xOffset, (y * this.scale) - this.yOffset, this.scale, this.scale);
-									if (input.debug) {
-										console.log(blockCount + ': Drawing block (' + x + ', ' + y + ') with color ' + thisColor);
-									}
-									blockCount += 1;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (input.debug) {
-				input.debug = false;
-			}
-		};
-		this.toMapCoord = function (point) {
-			var p = {
-				x: point.x,
-				y: point.y
-			};
-	
-			p.x = Math.floor((p.x + this.xOffset) / this.scale); // map is full length, so get that
-			p.y = Math.floor((p.y + this.yOffset) / this.scale);
-	
-			// check in bounds
-			if (p.x < 0 || p.x > this.level_map.width || p.y < 0 || p.y > this.level_map.height) {
-				p = null;
-			}
-	
-			return p;
-		};
-	}
-	
 	// BEGIN GameEngine
 	function GameEngine() {
 		"use strict";
@@ -850,7 +720,7 @@ define(['imageloader', 'background'], function() {
 		this.addLevel = function (levelMap) {
 			var levelID = this.levels.length;
 			
-			this.levels.push(new Level());
+			this.levels.push(new Level(c, ctx));
 			// load level image map
 			this.levels[levelID].level_map = levelMap;
 			
@@ -859,7 +729,7 @@ define(['imageloader', 'background'], function() {
 			// undo translations so image loading is normal
 			ctx.translate(0, c.height);
 			ctx.scale(1, -1);
-			ctx.translate(-0.5, 0); // offset for aliasing
+			ctx.translate(-0.5, 0.5); // offset for aliasing
 	
 			// draw map for grabbing data
 			ctx.drawImage(this.levels[levelID].level_map, 0, 0);
@@ -886,7 +756,7 @@ define(['imageloader', 'background'], function() {
 			this.resetLevel();
 		};
 		this.resetLevel = function () {
-			var temp = this.levels[engine.currentLevel].getStart();
+			var temp = this.levels[this.currentLevel].getStart();
 			
 			this.player.pos.x = temp.x * this.levels[engine.currentLevel].scale;
 			this.player.pos.y = temp.y * this.levels[engine.currentLevel].scale;
@@ -894,7 +764,7 @@ define(['imageloader', 'background'], function() {
 			this.player.vel.y = 0;
 			this.levelTimer = 0;
 			this.pauseFlag = true;
-			this.player.update(0);
+			this.player.update(0, this.levels[engine.currentLevel]);
 			this.countdown = 1000; // 1 second for restart
 		}
 		this.update = function (ms) {
@@ -906,7 +776,7 @@ define(['imageloader', 'background'], function() {
 					this.backgrounds[i].update(ms);
 				}
 				
-				this.player.update(ms);
+				this.player.update(ms, this.levels[this.currentLevel]);
 			}
 			if (this.countdown > 0) {
 				this.countdown -= ms;
@@ -932,7 +802,9 @@ define(['imageloader', 'background'], function() {
 			}
 	
 			// draw level
-			this.levels[this.currentLevel].draw(c, ctx);
+			if(this.levels.length > 0) {
+				this.levels[this.currentLevel].draw(c, ctx);
+			}
 			
 			// draw player
 			this.player.draw(c, ctx);
