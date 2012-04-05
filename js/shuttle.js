@@ -1,7 +1,9 @@
-define(['imageloader', 'background', 'level', 'player', 'gameengine'], function() {
+define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
+	
 	var lastUpdate = null;
 	var engine = null;
 	var c, ctx;
+	var buttons = [];
 	
 	// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
 	
@@ -56,15 +58,15 @@ define(['imageloader', 'background', 'level', 'player', 'gameengine'], function(
 	function handleMouseDown(evt) {
 		"use strict";
 		if (evt.target.id === 'gameCanvas') {
-			if (!input.up) {
-				input.up = true;
-			}
+			//if (!input.up) {
+			//	input.up = true;
+			//}
 		}
 	}
 	
 	function handleMouseUp(evt) {
 		"use strict";
-		input.up = false;
+		//input.up = false;
 	}
 	
 	function handleKeyDown(evt) {
@@ -224,7 +226,10 @@ define(['imageloader', 'background', 'level', 'player', 'gameengine'], function(
 	
 		// draw engine
 		engine.draw();
-		
+	
+		for(var i = 0; i < buttons.length; i++) {
+			buttons[i].draw();
+		}	
 		// draw debug grid if necessary
 		//drawDebugGrid('grid'); // 'crosshair' or 'grid'
 	
@@ -242,6 +247,10 @@ define(['imageloader', 'background', 'level', 'player', 'gameengine'], function(
 		imageManager.queueDownload('images/bgstars.png');
 		imageManager.queueDownload('images/level1.png');
 		imageManager.queueDownload('images/level2.png');
+		imageManager.queueDownload('images/button_up.png');
+		imageManager.queueDownload('images/button_down.png');
+		imageManager.queueDownload('images/button_left.png');
+		imageManager.queueDownload('images/button_right.png');
 	
 		imageManager.downloadAll(function () {
 			engine.addBackground(imageManager.getAsset('images/spacebg64x64.png'), 2, {x: 0.25, y: 0.25}); // image, scale, scrollFactor, velocity
@@ -255,6 +264,20 @@ define(['imageloader', 'background', 'level', 'player', 'gameengine'], function(
 			engine.player.frames = 5;
 			engine.player.width = (engine.player.image.width / engine.player.frames);
 			engine.player.height = engine.player.image.height;
+			
+			var tempButton = new Button(c, ctx);
+			tempButton.setImage(imageManager.getAsset('images/button_left.png'));
+			buttons.push(tempButton);
+			
+			tempButton = new Button(c, ctx);
+			tempButton.setImage(imageManager.getAsset('images/button_right.png'));
+			tempButton.pos = { x: 150, y: 50 };
+			buttons.push(tempButton);
+			
+			tempButton = new Button(c, ctx);
+			tempButton.setImage(imageManager.getAsset('images/button_up.png'));
+			tempButton.pos = { x: 250, y: 50 };
+			buttons.push(tempButton);
 		});
 	}
 	
