@@ -265,18 +265,21 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 			engine.player.width = (engine.player.image.width / engine.player.frames);
 			engine.player.height = engine.player.image.height;
 			
-			var tempButton = new Button(c, ctx);
+			var tempButton = new Button(c, ctx, 'left');
 			tempButton.setImage(imageManager.getAsset('images/button_left.png'));
+			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 			
-			tempButton = new Button(c, ctx);
+			tempButton = new Button(c, ctx, 'right');
 			tempButton.setImage(imageManager.getAsset('images/button_right.png'));
 			tempButton.pos = { x: 150, y: 50 };
+			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 			
-			tempButton = new Button(c, ctx);
+			tempButton = new Button(c, ctx, 'up');
 			tempButton.setImage(imageManager.getAsset('images/button_up.png'));
 			tempButton.pos = { x: 250, y: 50 };
+			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 		});
 	}
@@ -327,6 +330,12 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 			console.log('game:   (' + Math.round(x) + ', ' + (c.height - Math.round(y)) + ')');
 			console.log('map:    (' + Math.round(map.x) + ', ' + Math.round(map.y) + ')');
 			console.log('color:  (' + engine.levels[engine.currentLevel].colorAt(map.x, map.y) + ')');
+			for(var i = 0; i < buttons.length; i++) {
+				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
+					console.log('Button ' + buttons[i].id + ' clicked');
+				}
+			}	
+
 		});
 	
 		//BEGIN RAF SHIM

@@ -1,4 +1,5 @@
-function Button(c, ctx) {
+function Button(c, ctx, id) {
+	this.id = id;
 	this.c = c;
 	this.ctx = ctx;
 	this.image = null;
@@ -17,13 +18,13 @@ Button.prototype.setImage = function (img) {
 	this.image = img;
 	this.width = img.width;
 	this.height = img.height;
-	this.pos = { x: 50, y: 50};
+	this.pos = { x: 50, y: 50 };
 	this.drawWidth = 64;
 	this.drawHeight = 64;
 };
 
 Button.prototype.isInside = function(point) {
-	if (point.x >= this.pos.x && this.point.x <= (this.pos.x + this.drawWidth) && point.y >= this.pos.y && this.point.y <= (this.pos.y + this.drawHeight)) {
+	if (point.x >= this.pos.x && point.x <= (this.pos.x + this.drawWidth) && point.y >= this.pos.y && point.y <= (this.pos.y + this.drawHeight)) {
 		return true;
 	} else {
 		return false;
