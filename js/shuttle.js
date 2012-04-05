@@ -4,12 +4,7 @@ define(['imageloader', 'background', 'level', 'player'], function() {
 	var c, ctx;
 	
 	// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
-	
-	var clickDebug =  'Click Debug:';
-	clickDebug += '<table><tr><td>click</td><td>(0,0)</td></tr>';
-	clickDebug += '<tr><td>canvas</td><td>(0,0)</td></tr>';
-	clickDebug += '<tr><td>game</td><td>(0,0)</td></tr></table>';
-	
+		
 	var inputKeys = { // defines key codes used for input
 		up:		 87, // w
 		right:	 68, // d
@@ -251,8 +246,6 @@ define(['imageloader', 'background', 'level', 'player'], function() {
 			lastUpdate = newUpdate;
 		}
 	
-		$('#gameDebug').html(clickDebug);
-	
 		timeChange = newUpdate - lastUpdate;
 	
 		// update engine
@@ -333,12 +326,13 @@ define(['imageloader', 'background', 'level', 'player'], function() {
 		    x = e.pageX - gc.offset().left;
 		    y = e.pageY - gc.offset().top;
 		    map = engine.levels[engine.currentLevel].toMapCoord({x: x, y: c.height - y});
-			clickDebug =  'Click Debug:';
-			clickDebug += '<table><tr><td>click</td><td>(' + e.pageX + ', ' + e.pageY + ')</td></tr>';
-			clickDebug += '<tr><td>canvas</td><td>(' + Math.round(x) + ', ' + Math.round(y) + ')</td></tr>';
-			clickDebug += '<tr><td>game</td><td>(' + Math.round(x) + ', ' + (c.height - Math.round(y)) + ')</td></tr>';
-			clickDebug += '<tr><td>map</td><td>(' + Math.round(map.x) + ', ' + Math.round(map.y) + ')</td></tr>';
-			clickDebug += '<tr><td>color</td><td>(' + engine.levels[engine.currentLevel].colorAt(map.x, map.y) + ')</td></tr></table>';
+
+			console.log('Click Debug:');
+			console.log('click:  (' + e.pageX + ', ' + e.pageY + ')');
+			console.log('canvas: (' + Math.round(x) + ', ' + Math.round(y) + ')');
+			console.log('game:   (' + Math.round(x) + ', ' + (c.height - Math.round(y)) + ')');
+			console.log('map:    (' + Math.round(map.x) + ', ' + Math.round(map.y) + ')');
+			console.log('color:  (' + engine.levels[engine.currentLevel].colorAt(map.x, map.y) + ')');
 		});
 	
 		//BEGIN RAF SHIM
