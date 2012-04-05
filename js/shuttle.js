@@ -7,42 +7,6 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 	
 	// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
 	
-	function drawDebugGrid(method) {
-		"use strict";
-		var x, y;
-		switch (method) {
-		case 'grid':
-			ctx.strokeStyle = '#ff0000';
-			for (x = 0; x < c.width; x += engine.levels[engine.currentLevel].scale) {
-				ctx.beginPath();
-				ctx.moveTo(x, 0);
-				ctx.lineTo(x, c.height);
-				ctx.stroke();
-			}
-			for (y = 0; y < c.height; y += engine.levels[engine.currentLevel].scale) {
-				ctx.beginPath();
-				ctx.moveTo(0, y);
-				ctx.lineTo(c.width, y);
-				ctx.stroke();
-			}
-			break;
-	
-		case 'crosshair':
-			ctx.strokeStyle = '#ff0000';
-			ctx.beginPath();
-			ctx.moveTo(0, c.height / 2);
-			ctx.lineTo(c.width, c.height / 2);
-			ctx.stroke();
-	
-			ctx.beginPath();
-			ctx.moveTo(c.width / 2, 0);
-			ctx.lineTo(c.width / 2, c.height);
-			ctx.stroke();
-			break;
-		}
-	}
-	
-
 	function calcLandingForce() {
 		"use strict";
 		var playerMass, stoppingTime, acceleration, force;
@@ -230,8 +194,6 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		for(var i = 0; i < buttons.length; i++) {
 			buttons[i].draw();
 		}	
-		// draw debug grid if necessary
-		//drawDebugGrid('grid'); // 'crosshair' or 'grid'
 	
 		lastUpdate = newUpdate;
 	}
