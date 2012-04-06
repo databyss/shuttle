@@ -215,26 +215,28 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 	
 		timeChange = newUpdate - lastUpdate;
 		
-		for (i = 0; i < buttons.length; i++) {
-			if (buttons[i].isDown) {
-				if(buttons[i].id === 'up') {
-					input.up = true;
-				}
-				if(buttons[i].id === 'left') {
-					input.left = true;
-				}
-				if(buttons[i].id === 'right') {
-					input.right = true;
-				}
-			} else {
-				if(buttons[i].id === 'up') {
-					input.up = false;
-				}
-				if(buttons[i].id === 'left') {
-					input.left = false;
-				}
-				if(buttons[i].id === 'right') {
-					input.right = false;
+		if($('#useTouch:checkbox').is(':checked')) {
+			for (i = 0; i < buttons.length; i++) {
+				if (buttons[i].isDown) {
+					if(buttons[i].id === 'up') {
+						input.up = true;
+					}
+					if(buttons[i].id === 'left') {
+						input.left = true;
+					}
+					if(buttons[i].id === 'right') {
+						input.right = true;
+					}
+				} else {
+					if(buttons[i].id === 'up') {
+						input.up = false;
+					}
+					if(buttons[i].id === 'left') {
+						input.left = false;
+					}
+					if(buttons[i].id === 'right') {
+						input.right = false;
+					}
 				}
 			}
 		}
@@ -245,9 +247,11 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		// draw engine
 		engine.draw();
 	
-		// draw buttons
-		for(i = 0; i < buttons.length; i++) {
-			buttons[i].draw();
+		if($('#useTouch:checkbox').is(':checked')) {
+			// draw buttons
+			for(i = 0; i < buttons.length; i++) {
+				buttons[i].draw();
+			}
 		}	
 	
 		lastUpdate = newUpdate;
