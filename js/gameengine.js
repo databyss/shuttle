@@ -227,7 +227,7 @@ GameEngine.prototype.drawTimer = function (c, ctx) {
 	// set font properties
 	this.ctx.fillStyle = '#ff0000';
 	this.ctx.font = '30px sans-serif';
-	this.ctx.textAlign = 'left';
+	this.ctx.textAlign = 'right';
 	this.ctx.textBaseline = 'bottom';
 	
 	// save current context configuration
@@ -237,7 +237,7 @@ GameEngine.prototype.drawTimer = function (c, ctx) {
 	this.ctx.scale(1, -1);
 	
 	// draw text
-	this.ctx.fillText(min + ':' + sec, this.c.width - 150, 40);
+	this.ctx.fillText(min + ':' + sec, this.c.width - 10, 40);
 	
 	// restore context
 	this.ctx.restore();
