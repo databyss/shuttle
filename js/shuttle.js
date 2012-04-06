@@ -55,6 +55,7 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		if (evt.target.id === 'gameCanvas') {
 			for(var i = 0; i < buttons.length; i++) {
 				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
+					buttons[i].untouch();
 				} else if(buttons[i].isDown) {
 					buttons[i].untouch();
 				}
@@ -214,6 +215,30 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 	
 		timeChange = newUpdate - lastUpdate;
 		
+		for (i = 0; i < buttons.length; i++) {
+			if (buttons[i].isDown) {
+				if(buttons[i].id === 'up') {
+					input.up = true;
+				}
+				if(buttons[i].id === 'left') {
+					input.left = true;
+				}
+				if(buttons[i].id === 'right') {
+					input.right = true;
+				}
+			} else {
+				if(buttons[i].id === 'up') {
+					input.up = false;
+				}
+				if(buttons[i].id === 'left') {
+					input.left = false;
+				}
+				if(buttons[i].id === 'right') {
+					input.right = false;
+				}
+			}
+		}
+		
 		// update engine
 		engine.update(timeChange);
 	
@@ -260,21 +285,21 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 			var tempButton = new Button(c, ctx, 'left');
 			tempButton.setImage(imageManager.getAsset('images/button_left.png'));
 			tempButton.setPosition({ x: 50, y: 50 });
-			tempButton.setScale(2);
+			tempButton.setScale(1.5);
 			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 			
 			tempButton = new Button(c, ctx, 'right');
 			tempButton.setImage(imageManager.getAsset('images/button_right.png'));
 			tempButton.setPosition({ x: 200, y: 50 });
-			tempButton.setScale(2);
+			tempButton.setScale(1.5);
 			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 			
 			tempButton = new Button(c, ctx, 'up');
 			tempButton.setImage(imageManager.getAsset('images/button_up.png'));
 			tempButton.setPosition({ x: 350, y: 50 });
-			tempButton.setScale(2);
+			tempButton.setScale(1.5);
 			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 		});
@@ -312,6 +337,9 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		window.addEventListener('mousedown', handleMouseDown, true);
 		window.addEventListener('mouseup', handleMouseUp, true);
 		window.addEventListener('mousemove', handleMouseMove, true);
+		window.addEventListener('touchstart', handleMouseDown, true);
+		window.addEventListener('touchend', handleMouseUp, true);
+		window.addEventListener('touchmove', handleMouseMove, true);
 	
 		//BEGIN RAF SHIM
 		// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/

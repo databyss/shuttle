@@ -63,6 +63,11 @@ Button.prototype.draw = function () {
 	if (this.image !== null) {
 		this.ctx.save();
 		this.ctx.globalAlpha = this.alpha;
+		
+		// highlight depressed buttons
+		if(this.isDown) { 
+			this.ctx.fillRect(this.pos.x, this.pos.y, this.drawWidth, this.drawHeight);
+		}
 		this.ctx.drawImage(this.image, this.pos.x, this.pos.y, this.drawWidth, this.drawHeight);
 		this.ctx.restore();
 	}
