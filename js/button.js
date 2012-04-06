@@ -5,22 +5,46 @@ function Button(c, ctx, id) {
 	this.image = null;
 	this.width = 0;
 	this.height = 0;
-	this.drawWidth = 34;
-	this.drawHeight = 50;
+	this.scale = 1;
+	this.drawWidth = 64;
+	this.drawHeight = 64;
 	this.alpha = 0.25; // 25%
+	this.isDown = false;
 	this.pos = {
 		x: 0,
 		y: 0
 	};
 };
 
+Button.prototype.touch = function() {
+	if (!this.isDown) {
+		this.isDown = true;
+	}
+}
+
+Button.prototype.untouch = function() {
+	if(this.isDown) {
+		this.isDown = false;
+	}
+}
+
+Button.prototype.setPosition = function(point) {
+	this.pos = point;
+}
+
+Button.prototype.setScale = function(scale) {
+	this.scale = scale;
+	this.drawWidth = this.width * this.scale;
+	this.drawHeight = this.height * this.scale
+}
+
 Button.prototype.setImage = function (img) {
 	this.image = img;
 	this.width = img.width;
 	this.height = img.height;
-	this.pos = { x: 50, y: 50 };
-	this.drawWidth = 64;
-	this.drawHeight = 64;
+	this.pos = { x: 0, y: 0 };
+	this.drawWidth = this.width * this.scale;
+	this.drawHeight = this.height * this.scale
 };
 
 Button.prototype.isInside = function(point) {
