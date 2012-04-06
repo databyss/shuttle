@@ -213,7 +213,7 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		}
 	
 		timeChange = newUpdate - lastUpdate;
-	
+		
 		// update engine
 		engine.update(timeChange);
 	
@@ -221,7 +221,7 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		engine.draw();
 	
 		// draw buttons
-		for(var i = 0; i < buttons.length; i++) {
+		for(i = 0; i < buttons.length; i++) {
 			buttons[i].draw();
 		}	
 	
