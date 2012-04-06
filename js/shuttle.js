@@ -4,33 +4,42 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 	var engine = null;
 	var c, ctx;
 	var buttons = [];
+	var isMouseDown = false;
 	
 	// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
 	function handleMouseMove(evt) {
 		"use strict";
-		var gc, x, y;
-		gc = $("#gameCanvas");
-	    x = evt.pageX - gc.offset().left;
-	    y = evt.pageY - gc.offset().top;
-		if (evt.target.id === 'gameCanvas') {
-			for(var i = 0; i < buttons.length; i++) {
-				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
-					console.log('Button ' + buttons[i].id + ' rubbed');
-				}
-			}	
+		if(isMouseDown === true) {
+			// only care if button is down
+			var gc, x, y;
+			gc = $("#gameCanvas");
+			x = evt.pageX - gc.offset().left;
+			y = evt.pageY - gc.offset().top;
+			if (evt.target.id === 'gameCanvas') {
+				for(var i = 0; i < buttons.length; i++) {
+					if (buttons[i].isInside({x: x, y: (c.height - y)})) {
+						buttons[i].touch();
+					} else if(buttons[i].isDown) {
+						buttons[i].untouch();
+					}
+				}	
+			}
 		}
 	}
 	
 	function handleMouseDown(evt) {
 		"use strict";
+		isMouseDown = true;
 		var gc, x, y;
 		gc = $("#gameCanvas");
-	    x = evt.pageX - gc.offset().left;
-	    y = evt.pageY - gc.offset().top;
+		x = evt.pageX - gc.offset().left;
+		y = evt.pageY - gc.offset().top;
 		if (evt.target.id === 'gameCanvas') {
 			for(var i = 0; i < buttons.length; i++) {
 				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
-					console.log('Button ' + buttons[i].id + ' touched');
+					buttons[i].touch();
+				} else if(buttons[i].isDown) {
+					buttons[i].untouch();
 				}
 			}	
 		}
@@ -38,14 +47,16 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 	
 	function handleMouseUp(evt) {
 		"use strict";
+		isMouseDown = false;
 		var gc, x, y;
 		gc = $("#gameCanvas");
-	    x = evt.pageX - gc.offset().left;
-	    y = evt.pageY - gc.offset().top;
+		x = evt.pageX - gc.offset().left;
+		y = evt.pageY - gc.offset().top;
 		if (evt.target.id === 'gameCanvas') {
 			for(var i = 0; i < buttons.length; i++) {
 				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
-					console.log('Button ' + buttons[i].id + ' untouched');
+				} else if(buttons[i].isDown) {
+					buttons[i].untouch();
 				}
 			}	
 		}
@@ -209,6 +220,7 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		// draw engine
 		engine.draw();
 	
+		// draw buttons
 		for(var i = 0; i < buttons.length; i++) {
 			buttons[i].draw();
 		}	
@@ -247,18 +259,22 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 			
 			var tempButton = new Button(c, ctx, 'left');
 			tempButton.setImage(imageManager.getAsset('images/button_left.png'));
+			tempButton.setPosition({ x: 50, y: 50 });
+			tempButton.setScale(2);
 			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 			
 			tempButton = new Button(c, ctx, 'right');
 			tempButton.setImage(imageManager.getAsset('images/button_right.png'));
-			tempButton.pos = { x: 150, y: 50 };
+			tempButton.setPosition({ x: 200, y: 50 });
+			tempButton.setScale(2);
 			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 			
 			tempButton = new Button(c, ctx, 'up');
 			tempButton.setImage(imageManager.getAsset('images/button_up.png'));
-			tempButton.pos = { x: 250, y: 50 };
+			tempButton.setPosition({ x: 350, y: 50 });
+			tempButton.setScale(2);
 			tempButton.alpha = 0.20;
 			buttons.push(tempButton);
 		});
@@ -296,22 +312,6 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		window.addEventListener('mousedown', handleMouseDown, true);
 		window.addEventListener('mouseup', handleMouseUp, true);
 		window.addEventListener('mousemove', handleMouseMove, true);
-	
-		// debug
-		$("#gameCanvas").click(function (e) {
-			var gc, x, y, map;
-			gc = $("#gameCanvas");
-		    x = e.pageX - gc.offset().left;
-		    y = e.pageY - gc.offset().top;
-		    map = engine.levels[engine.currentLevel].toMapCoord({x: x, y: c.height - y});
-
-			console.log('Click Debug:');
-			console.log('click:  (' + e.pageX + ', ' + e.pageY + ')');
-			console.log('canvas: (' + Math.round(x) + ', ' + Math.round(y) + ')');
-			console.log('game:   (' + Math.round(x) + ', ' + (c.height - Math.round(y)) + ')');
-			console.log('map:    (' + Math.round(map.x) + ', ' + Math.round(map.y) + ')');
-			console.log('color:  (' + engine.levels[engine.currentLevel].colorAt(map.x, map.y) + ')');
-		});
 	
 		//BEGIN RAF SHIM
 		// reference: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
