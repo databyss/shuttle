@@ -44,7 +44,8 @@ function GameEngine(c, ctx) {
 	this.currentLevel = 0;
 	this.levelTimer = 0;
 	this.countdown = 3000;
-	this.states
+	
+	this.states = ['mainMenu', 'aboutPage', 'gameRunning', 'gamePaused'];
 }
 
 GameEngine.prototype.addBackground = function (background, scale, scroll, velocity) {
