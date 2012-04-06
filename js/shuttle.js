@@ -6,31 +6,49 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 	var buttons = [];
 	
 	// Article: http://www.wired.com/gamelife/2012/03/rj-mical-gdc-speech
-	
-	function calcLandingForce() {
+	function handleMouseMove(evt) {
 		"use strict";
-		var playerMass, stoppingTime, acceleration, force;
-	
-		// calculate acceleration of stopping, then force accrued
-		playerMass = 909.1; // 909.1 kg ~ 2000 lbs.
-		stoppingTime = 0.01; // .01 seconds. reasonably close to zero
-		acceleration = -player.vel.y / stoppingTime;
-		force = playerMass * acceleration; // Newtons
-		return force;
+		var gc, x, y;
+		gc = $("#gameCanvas");
+	    x = evt.pageX - gc.offset().left;
+	    y = evt.pageY - gc.offset().top;
+		if (evt.target.id === 'gameCanvas') {
+			for(var i = 0; i < buttons.length; i++) {
+				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
+					console.log('Button ' + buttons[i].id + ' rubbed');
+				}
+			}	
+		}
 	}
 	
 	function handleMouseDown(evt) {
 		"use strict";
+		var gc, x, y;
+		gc = $("#gameCanvas");
+	    x = evt.pageX - gc.offset().left;
+	    y = evt.pageY - gc.offset().top;
 		if (evt.target.id === 'gameCanvas') {
-			//if (!input.up) {
-			//	input.up = true;
-			//}
+			for(var i = 0; i < buttons.length; i++) {
+				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
+					console.log('Button ' + buttons[i].id + ' touched');
+				}
+			}	
 		}
 	}
 	
 	function handleMouseUp(evt) {
 		"use strict";
-		//input.up = false;
+		var gc, x, y;
+		gc = $("#gameCanvas");
+	    x = evt.pageX - gc.offset().left;
+	    y = evt.pageY - gc.offset().top;
+		if (evt.target.id === 'gameCanvas') {
+			for(var i = 0; i < buttons.length; i++) {
+				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
+					console.log('Button ' + buttons[i].id + ' untouched');
+				}
+			}	
+		}
 	}
 	
 	function handleKeyDown(evt) {
@@ -277,6 +295,7 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 		window.addEventListener('keyup', handleKeyUp, true);
 		window.addEventListener('mousedown', handleMouseDown, true);
 		window.addEventListener('mouseup', handleMouseUp, true);
+		window.addEventListener('mousemove', handleMouseMove, true);
 	
 		// debug
 		$("#gameCanvas").click(function (e) {
@@ -292,12 +311,6 @@ define(['imageloader', 'player', 'level', 'gameengine', 'button'], function() {
 			console.log('game:   (' + Math.round(x) + ', ' + (c.height - Math.round(y)) + ')');
 			console.log('map:    (' + Math.round(map.x) + ', ' + Math.round(map.y) + ')');
 			console.log('color:  (' + engine.levels[engine.currentLevel].colorAt(map.x, map.y) + ')');
-			for(var i = 0; i < buttons.length; i++) {
-				if (buttons[i].isInside({x: x, y: (c.height - y)})) {
-					console.log('Button ' + buttons[i].id + ' clicked');
-				}
-			}	
-
 		});
 	
 		//BEGIN RAF SHIM
